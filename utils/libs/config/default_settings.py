@@ -13,8 +13,8 @@ from .logger_settings import (
 MAIL_CONFIG = {
     'host': 'smtp.163.com',
     'port': 465,
-    'user': '13552974161@163.com',
-    'password': 'yangxuefeng122',
+    'user': 'xxxxxxxx',
+    'password': 'xxxxxxxxxxxxxxxxx',
 }
 
-AMAP_SERVER_KEY = "c3f34608ff28f6cd617560bc497e8976"
+AMAP_SERVER_KEY = "xxxxxxxxxxxxxxxxxxxxxx"

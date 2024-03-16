@@ -4,14 +4,10 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="author" content="杨学峰">
-  <meta name="copyright" content="Daniel Yang版权所有">
   <meta name="baidu_union_verify" content="00e8e378a55e67dfe8ef4ccbcc7ab7d7">
   <meta name="google-site-verification" content="dnyWZ80_3hVjbtwfL9HXBAp31ygEkNlTEopdwTRzhE8" />
   <meta name="baidu-site-verification" content="xxnzwzyTfv" />
   <title>{% block title %}{% endblock %}</title>
-  <meta name="keywords" content="杨学峰、个人博客、杨学峰博客、Python、Django、MySql、uWSGI、HTML、Jquery、Redis、数据库、服务器、性能优化">
-  <meta name="description" content="杨学峰、个人博客、杨学峰博客、Python、Django、MySql、uWSGI、HTML、Jquery、Redis、数据库、服务器、性能优化。记录和分享学习的心得,感悟生活,留住感动,静静寻觅生活的美好">
   {{ form.media }}
   <link rel="shortcut icon" href="/static/images/logo.png" type="image/x-icon" />
 
@@ -42,13 +38,6 @@
   </script>
   <!-- 百度统计 -->
   <script>
-    var _hmt = _hmt || [];
-    (function() {
-      var hm = document.createElement("script");
-      hm.src = "https://hm.baidu.com/hm.js?d0c36cd2aa168157a75f00eaf29e4709";
-      var s = document.getElementsByTagName("script")[0];
-      s.parentNode.insertBefore(hm, s);
-    })();
   </script>
 </head>
 
@@ -78,7 +67,7 @@ $(function () {
         <div id="logo">
           <div class="pull-left hidden-xs hidden-sm">
             <h2 id="site-title">
-              <a href="{% url 'home' %}" rel="home">杨学峰博客</a>
+              <a href="{% url 'home' %}" rel="home">LLM智能博客</a>
             </h2>
           </div>
           <div style="margin:25px 0 0 20px;" class="pull-left">
@@ -90,7 +79,6 @@ $(function () {
                   <li><a href="{% url 'message' %}">留言板</a></li>
                   <li><a href="{% url 'links' %}">友情链接</a></li>
                   <li><a href="{% url 'about' %}">关于我</a></li>
-                  <li><a href="{% url 'tool_box' %}" target="_blank">工具箱</a></li>
                 </ul>
               </div>
             </nav>
@@ -98,11 +86,11 @@ $(function () {
           <div class="clearfix"></div>
         </div>
         <div class="social-icons hidden-xs hidden-sm">
-          <a href="https://github.com/a1401358759" target="_blank"><i class="fa fa-github"></i></a>
-          <a href="javascript:;" onclick="verify_user()"><i class="fa fa-heart"></i></a>
-          <a href="https://monitor.yangsihan.com/" target="_blank"><i class="fa fa-bell"></i></a>
-          <!--<a href="{% url 'my_resume' %}" target="_blank"><i class="fa fa-user"></i></a>-->
-          <a href="{% url 'RSS' %}" target="_blank"><i class="fa fa-rss"></i></a>
+          <a href="https://github.com/fanji-jared" target="_blank"><i class="fa fa-github"></i></a>
+          <a href="#" onclick="verify_user()"><i class="fa fa-heart"></i></a>
+          <!-- <a href="" target="_blank"><i class="fa fa-bell"></i></a> -->
+          <!-- <a href="{% url 'my_resume' %}" target="_blank"><i class="fa fa-user"></i></a> -->
+          <!-- <a href="{% url 'RSS' %}" target="_blank"><i class="fa fa-rss"></i></a> -->
         </div>
       </div>
       <div class="clearfix"></div>
@@ -136,14 +124,16 @@ $(function () {
   </div>
   {% include "blog/verify_user.html" %}
 
-  <!--<script type="text/javascript">
+  <!-- 音乐 -->
+  <script type="text/javascript">
     const ap = new APlayer({
       container: document.getElementById('player'),
       fixed: true,
       volume: 0.5,
       audio: {{ music_list|safe }}
     });
-  </script>-->
+  </script>
+
   <script type="text/javascript">
     function verify_user(){
       jQuery('#verify_user_form')[0].reset();
@@ -163,7 +153,7 @@ $(function () {
     document.body.addEventListener('input', POWERMODE);
   </script>
   <!-- 彩带 -->
-  <!-- <script id="ribbon" size="100" alpha='0.3' zIndex="-2" src="/static/js/ribbon.min.js"></script> -->
-  <!-- <script id="ribbon_piao" src="/static/js/piao.min.js"></script> -->
+  <script id="ribbon" size="100" alpha='0.3' zIndex="-2" src="/static/js/ribbon.min.js"></script>
+  <script id="ribbon_piao" src="/static/js/piao.min.js"></script>
 </body>
 </html>

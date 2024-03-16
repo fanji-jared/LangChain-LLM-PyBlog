@@ -1,7 +1,7 @@
 {% extends "blog/base.html" %}
 {% load custom_markdown %}
 {% block title %}
-  杨学峰博客 | {{ article.title }}
+  LLM智能博客 | {{ article.title }}
 {% endblock %}
 {% block path %}
   当前位置&nbsp;:&nbsp;<a href = "{% url 'home' %}">首页&nbsp;</a>»&nbsp;文章分类&nbsp;:&nbsp;<a href="{% if article.classification %}{% url 'classfiDetail' classfi=article.classification.name %}{% endif %}">{{ article.classification.name }}&nbsp;</a>»&nbsp; {{article.title}}
@@ -114,7 +114,7 @@
     window.onfocus = function () {
       document.title = '哎呀，回来了...';
       setTimeout(function () {
-        document.title = "杨学峰博客 | {{ article.title }}";
+        document.title = "LLM智能博客 | {{ article.title }}";
       }, 2000);
     };
     window.onblur = function () {
@@ -125,7 +125,7 @@
   <script>
     var $config = {
       image: '/static/images/logo.png',
-      description: '一个Python程序员的博客，记录和分享学习的心得,感悟生活,留住感动,静静寻觅生活的美好。',
+      description: '繁华之后，便是永寂。',
       disabled : ['google', 'facebook', 'twitter'], // 禁用的站点
       wechatQrcodeHelper : '<p>微信扫码分享至朋友圈。</p>',
     };
@@ -139,8 +139,8 @@
       <img src="/static/images/logo.png" class="site-state-img" alt="博客头像">
       <br>
       <br>
-      <span>杨学峰</span>
-      <p class="site-description">记录和分享学习的心得，感悟生活，留住感动，静静寻觅生活的美好。</p>
+      <span>繁寂</span>
+      <p class="site-description">繁华之后，便是永寂。</p>
     </div>
     <div style="margin-top:30px;" class="pull-center">
       <div class="site-state-item site-state-posts">
@@ -163,7 +163,7 @@
       </div>
     </div>
     <div style="margin-top:30px;" class="pull-center">
-      <a href="https://github.com/a1401358759" target="_blank">
+      <a href="https://github.com/fanji-jared" target="_blank">
         <i class="fa fa-github"></i> Github
       </a>
     </div>

@@ -37,4 +37,4 @@ class EditorKind(object):
     CHOICES_DICT = dict(CHOICES)
 
 
-DOMAIN = 'https://yangsihan.com'
+DOMAIN = 'http://127.0.0.1:8000/'

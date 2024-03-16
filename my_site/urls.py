@@ -24,7 +24,7 @@ urlpatterns = [
     path('articleTag/<str:tag>/', views.tagDetail, name="tagDetail"),  # 每个标签页下面的文章
     path('love/', views.love),
     path('my-resume/', views.my_resume, name='my_resume'),  # 简历
-    path('tools/', views.tool_box, name='tool_box'),  # 工具
+    # path('tools/', views.tool_box, name='tool_box'),  # 工具
     path('upload/', views.upload_file, name='upload_file'),
     path('upload-rich/', views.upload_rich_file, name='upload_rich_file'),
     path('add-comments/', views.add_comments_view, name='add_comments'),

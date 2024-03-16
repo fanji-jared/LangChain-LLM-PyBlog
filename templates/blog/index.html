@@ -3,19 +3,19 @@
 {% load custom_markdown %}
 {% block title %}
   {% if is_home %}
-    杨学峰博客
+    LLM智能博客
   {% endif %}
   {% if is_arch_month %}
-    杨学峰博客 | {{ year }}年 | {{ month }}月
+    LLM智能博客 | {{ year }}年 | {{ month }}月
   {% endif%}
   {% if is_classfi %}
-    杨学峰博客 | {{ classfi }}
+    LLM智能博客 | {{ classfi }}
   {% endif%}
   {% if is_tag  %}
-    杨学峰博客 | {{ tag }}
+    LLM智能博客 | {{ tag }}
   {% endif%}
   {% if is_search  %}
-    杨学峰博客 | 查找有关{{ s }}的文章
+    LLM智能博客 | 查找有关{{ s }}的文章
   {% endif %}
 {% endblock %}
 
@@ -91,9 +91,9 @@
                   {{ article.title }}
                 </a>
               </h1>
-              <!--<div class="post-format-indicator">
+              <!-- <div class="post-format-indicator">
                 <a class="entry-format" href="{{ article.get_absolute_url }}"></a>
-              </div>-->
+              </div> -->
             </header>
 
             <div class="entry-content">

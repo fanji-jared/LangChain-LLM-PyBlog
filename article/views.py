@@ -207,7 +207,7 @@ def archive(request):
 
 
 class RSSFeed(Feed):
-    title = "RSS feed - 杨学峰博客"
+    title = "RSS feed - LLM智能博客"
     link = "feeds/posts/"
     description = "RSS feed - blog posts"
 
@@ -282,11 +282,6 @@ def love(request):
 @require_GET
 def my_resume(request):
     return render(request, 'resume/my_resume.html')
-
-
-@require_GET
-def tool_box(request):
-    return render(request, 'tools/tool_list.html')
 
 
 def links(request):

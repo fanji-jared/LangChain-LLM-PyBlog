@@ -1,7 +1,7 @@
 {% extends "blog/base.html" %}
 {% load bootstrap_pagination %}
 {% block title %}
-  杨学峰博客 | 关于我
+  LLM智能博客 | 关于我
 {% endblock %}
 {% block path %}
   当前位置&nbsp;:&nbsp;<a href = "{% url 'home'%}">首页&nbsp;</a>»&nbsp;关于我
@@ -13,18 +13,19 @@
         关于本站
       </h3>
       <blockquote>
-        <p>1. 使用Python + Django + MySQL + Redis开发的个人博客，GitHub地址：<a href="https://github.com/a1401358759/my_site">github</a>。
-        欢迎吐槽、star和fork。<p>
+        <p>1. 本站在杨学峰大佬的GitHub开源代码：<a target="_blank" href="https://github.com/a1401358759/my_site">my_site</a>上，进一步增加了由中文BERT、transformers处理博客数据后，由LLM大语言模型对用户问题进行回答，为个人打造的专属知识库博客。
+          本项目的GitHub地址：<a target="_blank" href="https://github.com/fanji-jared/LangChain-LLM-PyBlog">LangChain-LLM-PyBlog</a><p>
         <p>2. 本站大部分文章是博主工作中遇到问题时，通过网络资源查找到的解决方法的总结记录，如有不当之处，请联系博主删除，敬请谅解！</p>
-        <p>3. 本站建于 2018-02-01，已经稳定运行 <span id="timeDate" style="color:red;">载入天数...</span><span id="times" style="color:red;">载入时分秒...</span></p>
+        <p>3. 本站建于 2024-01-01，已经稳定运行 <span id="timeDate" style="color:red;">载入天数...</span><span id="times" style="color:red;">载入时分秒...</span></p>
       </blockquote>
 
       <h3 style="font-weight: bold">
         关于我
       </h3>
       <blockquote>
-        <p>1. IT行业python男一枚，东搞西搞，目前工作于研发部，对在线学习和开发感兴趣，偶尔打LOL，看些电视剧和电影。</p>
-        <p>2. <a href="https://promotion.aliyun.com/ntms/yunparter/invite.html?userCode=rovwt9lv" target="_blank">领取阿里云专属优惠券</a></p>
+        <p>1. 即将毕业的脆皮大学生一名</p>
+        <p>2. 前后端开发，java swing以及python桌面客户端，Android APK开发</p>
+        <p>3. 也会玩玩嵌入式，stc单片机，Arduino，嘉立创IDE，阿里云IOT</p>
       </blockquote>
 
       <h3 style="font-weight: bold">
@@ -32,11 +33,11 @@
       </h3>
       <blockquote>
         <ul>
-          <p><i class="fa fa-btc"></i>&nbsp;博客：<a href="{% url 'home' %}">杨学峰博客</a></p>
-          <p><i class="fa fa-envelope-o"></i>&nbsp;邮箱：<a target="_blank" href="javascript:;">13552974161@163.com</a></p>
-          <p><i class="fa fa-github"></i>&nbsp;GitHub：<a target="_blank" href="https://github.com/a1401358759">github</a></p>
-          <p><i class="fa fa-qq"></i>&nbsp;QQ： <a target="_blank" href="javascript:;">1401358759</a></p>
-          <p><i class="fa fa-weixin"></i>&nbsp;微信：<a href="javascript:;">yangxuefengwx</a></p>
+          <p><i class="fa fa-btc"></i>&nbsp;博客：<a href="{% url 'home' %}">LLM智能博客</a></p>
+          <p><i class="fa fa-envelope-o"></i>&nbsp;邮箱：<a target="_blank" href="javascript:;">2967557176@qq.com</a></p>
+          <p><i class="fa fa-github"></i>&nbsp;GitHub：<a target="_blank" href="https://github.com/fanji-jared/">繁寂</a></p>
+          <p><i class="fa fa-qq"></i>&nbsp;QQ： <a target="_blank" href="javascript:;">2967557176</a></p>
+          <p><i class="fa fa-weixin"></i>&nbsp;微信：<a href="javascript:;">xxxxxxxxx</a></p>
         </ul>
       </blockquote>
     </div>
@@ -53,7 +54,7 @@
   <script>
     var now = new Date();
     function createtime() {
-      var grt = new Date("02/01/2018 00:00:00");  // 此处修改你的建站时间或者网站上线时间 月/日/年
+      var grt = new Date("01/01/2024 00:00:00");  // 此处修改你的建站时间或者网站上线时间 月/日/年
       now.setTime(now.getTime() + 250);
       days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days);
       hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours);

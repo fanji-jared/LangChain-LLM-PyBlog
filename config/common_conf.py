@@ -7,6 +7,6 @@ AliyunOssProtectedConf = {
     "bucket_name": 'bucket-name'  # 不需要签名
 }
 
-DOMAIN_NAME = "https://yangsihan.com"
+DOMAIN_NAME = "https://xxx.com"
 
-BLOGGER_EMAIL = "13552974161@163.com"
+BLOGGER_EMAIL = "xxx@xx.xx"
