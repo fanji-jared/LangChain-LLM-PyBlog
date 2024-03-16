@@ -1,0 +1,129 @@
+#ai {
+    /* 右下角弹出模式 */
+    
+    /* position: fixed;
+    bottom: 10px;
+    right: 10px; */
+}
+
+.chat-thread {
+    width: 100%;
+    max-height: calc(40vh);
+    list-style: none;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+.chat-thread li {
+    max-width: 250px;
+    word-wrap: break-word;
+    position: relative;
+    clear: both;
+    display: inline-block;
+    padding: 8px 10px 8px 10px;
+    margin: 0 0 10px 0;
+
+    font-size: 16px;
+    line-height: 1.8;
+    color: #1A1A1A;
+    font-family: 'MiSans-Medium', sans-serif;
+
+    border-radius: 10px;
+    background-color: rgba(25, 147, 147, 0.2);
+}
+
+.chat-thread li:before {
+    position: absolute;
+    top: 0;
+    width: 50px;
+    height: 50px;
+    border-radius: 50px;
+    content: ""
+}
+
+.chat-thread li:after {
+    position: absolute;
+    top: 15px;
+    content: "";
+    width: 0;
+    height: 0;
+    border-top: 15px solid rgba(25, 147, 147, 0.2)
+}
+
+/* 用户样式 */
+.chat-thread>.user {
+    animation: show-chat-odd .15s 1 ease-in;
+    -moz-animation: show-chat-odd .15s 1 ease-in;
+    -webkit-animation: show-chat-odd .15s 1 ease-in;
+    float: right;
+    margin-right: 80px;
+    color: #2196F3;
+}
+
+.chat-thread>.user:before {
+    right: -80px;
+    /* 用户头像 - 默认 */
+    background-image: url("../../static/images/user_head.jpeg");
+}
+
+.chat-thread>.user:after {
+    border-right: 15px solid transparent;
+    right: -15px
+}
+
+/* AI样式 */
+.chat-thread>.ai:nth-child(even) {
+    animation: show-chat-even .15s 1 ease-in;
+    -moz-animation: show-chat-even .15s 1 ease-in;
+    -webkit-animation: show-chat-even .15s 1 ease-in;
+    float: left;
+    margin-left: 80px;
+    color: rgb(12, 97, 136);
+}
+
+.chat-thread>.ai:nth-child(even):before {
+    left: -80px;
+    /* AI头像 - 与作者公用头像*/
+    background-image: url("../../static/images/ai_head.jpg");
+}
+
+.chat-thread>.ai:nth-child(even):after {
+    border-left: 15px solid transparent;
+    left: -15px
+}
+
+.chat-window {
+    width: 100%;
+    overflow-x: hidden;
+    position: relative;
+}
+
+.chat-window-textarea {
+    width: calc(100% - 4px);
+    margin: 0 auto;
+    height: calc(2px * 3 + 4px);
+
+    font-size: 16px;
+    line-height: 2;
+    color: #1A1A1A;
+    margin: 1.25em 0;
+    font-family: 'MiSans-Medium', sans-serif;
+
+    border: 1px solid #3c97e2;
+    box-sizing: border-box;
+}
+
+.chat-window>button {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: 50%;
+    position: absolute;
+    right: 6px;
+    bottom: 22px;
+}
+
+.chat-window>button>svg {
+    position: relative;
+    top: 3px;
+}
