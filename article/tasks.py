@@ -12,7 +12,7 @@ from utils.send_email import SendEmailClient
 def submit_urls_to_baidu():
     articles = Article.objects.filter(status=BlogStatus.PUBLISHED).order_by('-id')
     urls = [DOMAIN + article.get_absolute_url() for article in articles]
-    api = 'http://data.zz.baidu.com/urls?site=yangsihan.com&token=7tNlHmCq6GVPoYfb'
+    api = 'http://data.zz.baidu.com/urls?site=xxxxxxxx&token=xxxxxxxxxx'
     response = requests.post(api, data='\n'.join(urls))
     SysLogger.info(response.content.decode())
     print(response.content.decode())
