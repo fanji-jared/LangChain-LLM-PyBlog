@@ -5,8 +5,7 @@ LLM智能博客 | {{ article.title }}
 {% endblock %}
 {% block path %}
 当前位置&nbsp;:&nbsp;<a href="{% url 'home' %}">首页&nbsp;</a>»&nbsp;文章分类&nbsp;:&nbsp;<a
-  href="{% if article.classification %}{% url 'classfiDetail' classfi=article.classification.name %}{% endif %}">{{
-  article.classification.name }}&nbsp;</a>»&nbsp; {{article.title}}
+  href="{% if article.classification %}{% url 'classfiDetail' classfi=article.classification.name %}{% endif %}">{{ article.classification.name }}&nbsp;</a>»&nbsp; {{article.title}}
 {% endblock %}
 {% block content %}
 <progress id="content_progress" value="0"></progress>
