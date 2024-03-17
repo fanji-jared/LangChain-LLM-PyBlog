@@ -1,186 +1,195 @@
 {% extends "blog/base.html" %}
 {% load custom_markdown %}
 {% block title %}
-  LLM智能博客 | {{ article.title }}
+LLM智能博客 | {{ article.title }}
 {% endblock %}
 {% block path %}
-  当前位置&nbsp;:&nbsp;<a href = "{% url 'home' %}">首页&nbsp;</a>»&nbsp;文章分类&nbsp;:&nbsp;<a href="{% if article.classification %}{% url 'classfiDetail' classfi=article.classification.name %}{% endif %}">{{ article.classification.name }}&nbsp;</a>»&nbsp; {{article.title}}
+当前位置&nbsp;:&nbsp;<a href="{% url 'home' %}">首页&nbsp;</a>»&nbsp;文章分类&nbsp;:&nbsp;<a
+  href="{% if article.classification %}{% url 'classfiDetail' classfi=article.classification.name %}{% endif %}">{{
+  article.classification.name }}&nbsp;</a>»&nbsp; {{article.title}}
 {% endblock %}
 {% block content %}
-  <progress id="content_progress" value="0"></progress>
-  <div class="archive">
-    <div id="archives">
-      <header class="entry-header">
-        <div class="entry-info">
-          <span class="entry-date">
-            <i class="fa fa-calendar" aria-hidden="true"></i>
-            {{ article.publish_time|date:'Y年m月d日' }}
-          </span>
+<progress id="content_progress" value="0"></progress>
+<div class="archive">
+  <div id="archives">
+    <header class="entry-header">
+      <div class="entry-info">
+        <span class="entry-date">
+          <i class="fa fa-calendar" aria-hidden="true"></i>
+          {{ article.publish_time|date:'Y年m月d日' }}
+        </span>
 
-          <span class="author vcard">
-            <i class="fa fa-user" aria-hidden="true"></i>
-            {{ article.author.name }}
-          </span>
+        <span class="author vcard">
+          <i class="fa fa-user" aria-hidden="true"></i>
+          {{ article.author.name }}
+        </span>
 
-          <span class="pull-right">
-            <i class="fa fa-eye" aria-hidden="true">&nbsp;阅读:&nbsp;</i>{{ article.count }}
-          </span>
+        <span class="pull-right">
+          <i class="fa fa-eye" aria-hidden="true">&nbsp;阅读:&nbsp;</i>{{ article.count }}
+        </span>
 
-          <span class="comments-link">
-            <span class="ds-thread-count" data-thread-key="{{ article.id }}"></span>
-          </span>
-        </div>
-        <h1 class="entry-title" style="text-align:center;">
-          {{ article.title }}
-        </h1>
-        {% if not_update_days >= 180 %}
-          <div class="expired-tips">友情提醒：本文最后更新于 {{ not_update_days }} 天前，文中所描述的信息可能已发生改变，请谨慎使用。</div>
-        {% endif %}
-      </header>
-      <div>
-        {{ article.content|safe }}
-        <div class="clearfix"></div>
-      </div><!-- .entry-content -->
+        <span class="comments-link">
+          <span class="ds-thread-count" data-thread-key="{{ article.id }}"></span>
+        </span>
+      </div>
+      <h1 class="entry-title" style="text-align:center;">
+        {{ article.title }}
+      </h1>
+      {% if not_update_days >= 180 %}
+      <div class="expired-tips">友情提醒：本文最后更新于 {{ not_update_days }} 天前，文中所描述的信息可能已发生改变，请谨慎使用。</div>
+      {% endif %}
+    </header>
+    <div>
+      {{ article.content|safe }}
+      <div class="clearfix"></div>
+    </div><!-- .entry-content -->
 
-      <footer class="entry-meta" style="padding:10px 0; margin-top:10px;">
-        <div class="fenlei">
-          <span class="entry-categories">
-            <i class="fa fa-briefcase" aria-hidden="true"></i>
-            <a href="{% if article.classification %}{% url 'classfiDetail' classfi=article.classification.name %}{% endif %}" rel="category">
-              {{ article.classification.name }}
-            </a>
-          </span>
-          <span class="entry-tags">
-            <i class="fa fa-tags" aria-hidden="true"></i>
-            {% for i in article.get_tags %}
-              <a href="{{ i.get_absolute_url }}" rel="tag"> {{ i.name }}</a>
-            {% endfor %}
-          </span>
-        </div>
-      </footer>
-    </div>
+    <footer class="entry-meta" style="padding:10px 0; margin-top:10px;">
+      <div class="fenlei">
+        <span class="entry-categories">
+          <i class="fa fa-briefcase" aria-hidden="true"></i>
+          <a href="{% if article.classification %}{% url 'classfiDetail' classfi=article.classification.name %}{% endif %}"
+            rel="category">
+            {{ article.classification.name }}
+          </a>
+        </span>
+        <span class="entry-tags">
+          <i class="fa fa-tags" aria-hidden="true"></i>
+          {% for i in article.get_tags %}
+          <a href="{{ i.get_absolute_url }}" rel="tag"> {{ i.name }}</a>
+          {% endfor %}
+        </span>
+      </div>
+    </footer>
   </div>
+</div>
 
-  <div>
-    {% if article.get_before_article %}
-      {% with before=article.get_before_article %}
-        <p><span style="color:#666;">上一篇：</span><a href="{{ before.get_absolute_url }}">{{ before.title }}</a></p>
-      {% endwith %}
-    {% endif %}
-    {% if article.get_after_article %}
-      {% with after=article.get_after_article %}
-        <p><span style="color:#666;">下一篇：</span><a href="{{ after.get_absolute_url }}">{{ after.title }}</a></p>
-      {% endwith %}
-    {% endif %}
-  </div>
+<div>
+  {% if article.get_before_article %}
+  {% with before=article.get_before_article %}
+  <p><span style="color:#666;">上一篇：</span><a href="{{ before.get_absolute_url }}">{{ before.title }}</a></p>
+  {% endwith %}
+  {% endif %}
+  {% if article.get_after_article %}
+  {% with after=article.get_after_article %}
+  <p><span style="color:#666;">下一篇：</span><a href="{{ after.get_absolute_url }}">{{ after.title }}</a></p>
+  {% endwith %}
+  {% endif %}
+</div>
 
-  <!-- 分享 -->
-  <div class="social-share" style="text-align:center;margin-bottom:10px;"></div>
+<!-- 分享 -->
+<div class="social-share" style="text-align:center;margin-bottom:10px;"></div>
 
-  <!-- 打赏 -->
-  <div id="reward">
-    <button onclick="reward_modal_show()">打赏</button>
-  </div>
-  {% include "blog/reward.html" %}
+<!-- 打赏 -->
+<div id="reward">
+  <button onclick="reward_modal_show()">打赏</button>
+</div>
+{% include "blog/reward.html" %}
 
-  <!-- 评论框div -->
-  <div id="vcomments" class="widget widget_recent_comments">
-    <!-- 评论表单 -->
-    {% include "blog/comment_form.html" %}
-    <!-- 评论列表 -->
-    {% include "blog/comment_list.html" %}
-  </div>
+<!-- 评论框div -->
+<div id="vcomments" class="widget widget_recent_comments">
+  <!-- 评论表单 -->
+  {% include "blog/comment_form.html" %}
+  <!-- 评论列表 -->
+  {% include "blog/comment_list.html" %}
+</div>
 
-  <script type="text/javascript" src="/static/js/comments.js"></script>
-  <script src="/static/js/jquery.sticky.js"></script>
-  <script>
-    $('img:not(.vsmile-icons img)').zoomify(); // Default settings
-    // 阅读进度条
-    document.addEventListener('DOMContentLoaded', function () {
-      var winHeight = window.innerHeight;
-      var docHeight = document.documentElement.scrollHeight;
-      var progressBar = document.querySelector('#content_progress');
-      progressBar.max = docHeight - winHeight;
+<script type="text/javascript" src="/static/js/comments.js"></script>
+<script src="/static/js/jquery.sticky.js"></script>
+<script>
+  $('img:not(.vsmile-icons img)').zoomify(); // Default settings
+  // 阅读进度条
+  document.addEventListener('DOMContentLoaded', function () {
+    var winHeight = window.innerHeight;
+    var docHeight = document.documentElement.scrollHeight;
+    var progressBar = document.querySelector('#content_progress');
+    progressBar.max = docHeight - winHeight;
+    progressBar.value = window.scrollY;
+    document.addEventListener('scroll', function () {
+      progressBar.max = document.documentElement.scrollHeight - window.innerHeight;
       progressBar.value = window.scrollY;
-      document.addEventListener('scroll', function () {
-        progressBar.max = document.documentElement.scrollHeight - window.innerHeight;
-        progressBar.value = window.scrollY;
-      });
     });
-    // 粘性侧边栏
-    $(document).ready(function(){
-      $("#article-directory").sticky({topSpacing:60});
-    });
-    window.onfocus = function () {
-      document.title = '哎呀，回来了...';
-      setTimeout(function () {
-        document.title = "LLM智能博客 | {{ article.title }}";
-      }, 2000);
-    };
-    window.onblur = function () {
-      document.title = '死鬼~你快回来啊！';
-    };
-  </script>
+  });
+  // 粘性侧边栏
+  $(document).ready(function () {
+    $("#article-directory").sticky({ topSpacing: 60 });
+    // 获取元素
+    var stickyWrapper = document.getElementById('article-directory-sticky-wrapper');
+    // 获取实际高度
+    var actualHeight = stickyWrapper.offsetHeight + 70;
+    // 粘性问答栏
+    $("#ai").sticky({ topSpacing: actualHeight });
+  });
+  window.onfocus = function () {
+    document.title = '哎呀，回来了...';
+    setTimeout(function () {
+      document.title = "LLM智能博客 | {{ article.title }}";
+    }, 2000);
+  };
+  window.onblur = function () {
+    document.title = '死鬼~你快回来啊！';
+  };
+</script>
 
-  <script>
-    var $config = {
-      image: '/static/images/logo.png',
-      description: '繁华之后，便是永寂。',
-      disabled : ['google', 'facebook', 'twitter'], // 禁用的站点
-      wechatQrcodeHelper : '<p>微信扫码分享至朋友圈。</p>',
-    };
-    socialShare('.social-share', $config);
-  </script>
+<script>
+  var $config = {
+    image: '/static/images/logo.png',
+    description: '繁华之后，便是永寂。',
+    disabled: ['google', 'facebook', 'twitter'], // 禁用的站点
+    wechatQrcodeHelper: '<p>微信扫码分享至朋友圈。</p>',
+  };
+  socialShare('.social-share', $config);
+</script>
 {% endblock %}
 
 {% block side %}
-  <div id="site-state" class="widget widget_archive">
-    <div class="pull-center">
-      <img src="/static/images/logo.png" class="site-state-img" alt="博客头像">
-      <br>
-      <br>
-      <span>繁寂</span>
-      <p class="site-description">繁华之后，便是永寂。</p>
-    </div>
-    <div style="margin-top:30px;" class="pull-center">
-      <div class="site-state-item site-state-posts">
-        <a href="javascript:;">
-          <span class="site-state-item-count">{{ statics_count.blog_count|default_if_none:0 }}</span>
-          <span class="site-state-item-name">文章</span>
-        </a>
-      </div>
-      <div class="site-state-item site-state-posts">
-        <a href="javascript:;">
-          <span class="site-state-item-count">{{ statics_count.read_count|default_if_none:0 }}</span>
-          <span class="site-state-item-name">总阅读量</span>
-        </a>
-      </div>
-      <div class="site-state-item site-state-posts">
-        <a href="javascript:;">
-          <span class="site-state-item-count">{{ statics_count.tags_count|default_if_none:0 }}</span>
-          <span class="site-state-item-name">标签</span>
-        </a>
-      </div>
-    </div>
-    <div style="margin-top:30px;" class="pull-center">
-      <a href="https://github.com/fanji-jared" target="_blank">
-        <i class="fa fa-github"></i> Github
+<div id="site-state" class="widget widget_archive">
+  <div class="pull-center">
+    <img src="/static/images/logo.png" class="site-state-img" alt="博客头像">
+    <br>
+    <br>
+    <span>繁寂</span>
+    <p class="site-description">繁华之后，便是永寂。</p>
+  </div>
+  <div style="margin-top:30px;" class="pull-center">
+    <div class="site-state-item site-state-posts">
+      <a href="javascript:;">
+        <span class="site-state-item-count">{{ statics_count.blog_count|default_if_none:0 }}</span>
+        <span class="site-state-item-name">文章</span>
       </a>
     </div>
-    <div style="margin-top:20px;" class="pull-center">
-      <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">
-        <img src="/static/images/cc-by-nc-sa.png" alt="">
+    <div class="site-state-item site-state-posts">
+      <a href="javascript:;">
+        <span class="site-state-item-count">{{ statics_count.read_count|default_if_none:0 }}</span>
+        <span class="site-state-item-name">总阅读量</span>
+      </a>
+    </div>
+    <div class="site-state-item site-state-posts">
+      <a href="javascript:;">
+        <span class="site-state-item-count">{{ statics_count.tags_count|default_if_none:0 }}</span>
+        <span class="site-state-item-name">标签</span>
       </a>
     </div>
   </div>
-  {% if article.editor == 2 %}
-    <div id="article-directory" class="widget widget_archive">
-      <h3 class="widget-title">文章目录</h3>
-      {{ toc|safe }}
-    </div>
-  {% endif %}
+  <div style="margin-top:30px;" class="pull-center">
+    <a href="https://github.com/fanji-jared" target="_blank">
+      <i class="fa fa-github"></i> Github
+    </a>
+  </div>
+  <div style="margin-top:20px;" class="pull-center">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">
+      <img src="/static/images/cc-by-nc-sa.png" alt="">
+    </a>
+  </div>
+</div>
+{% if article.editor == 2 %}
+<div id="article-directory" class="widget widget_archive">
+  <h3 class="widget-title">文章目录</h3>
+  {{ toc|safe }}
+</div>
+{% endif %}
 
-  <!-- 博客问答 -->
-  {% include "blog/ChatArticleLLM.html" %}
-  
+<!-- 博客问答 -->
+{% include "blog/ChatArticleLLM.html" %}
+
 {% endblock %}
