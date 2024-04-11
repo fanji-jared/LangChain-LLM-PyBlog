@@ -66,15 +66,15 @@
                   {{ tag.name }}&nbsp;
                 {% endfor %}
                 </td>
-                <td>{{ item.get_status_display }}</td>
+                <td>{{ item.get_status_display }} | {% if item.isVectorize %}已向量化{% else %}未向量化{% endif %}</td>
                 <td>{{ item.publish_time|date:'Y-m-d H:i' }}</td>
                 <td>{{ item.last_update|date:'Y-m-d H:i' }}</td>
                 <td style="display: flex;justify-content: space-evenly;">
                   <!-- 向量化文档还是删除向量化数据 -->
                   {% if item.isVectorize == 0 %}
-                    <a href="javascript:;" class="btn btn-success btn-sm" onclick="update_status_modal_show('{{ item.id }}', 2)">向量化</a>
+                    <a href="javascript:;" class="btn btn-success btn-sm" onclick="vector_modal_show('{{ item.id }}', 0)">向量化</a>
                   {% elif item.isVectorize == 1 %}
-                    <a href="javascript:;" class="btn btn-danger btn-sm" onclick="update_status_modal_show('{{ item.id }}', 1)">删除量化</a>
+                    <a href="javascript:;" class="btn btn-danger btn-sm" onclick="vector_modal_show('{{ item.id }}', 1)">删除量化</a>
                   {% endif %}
                   <!-- 发布还是撤回 -->
                   {% if item.status == 1 %}
@@ -162,6 +162,31 @@
         <!-- /.modal-dialog -->
       </div>
 
+      <!-- 向量化或去向量化 -->
+      <div id="vector_status_modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title" id="myLargeModalLabel">向量化或删除向量化文章</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <form>
+              <div class="modal-body">
+                <h4>确认操作？</h4>
+                <input type="hidden" id="blog_vector_id">
+                <input type="hidden" id="blog_vector_status">
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-inverse" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-success" onclick="update_vector_status()">确定</button>
+              </div>
+            </form>
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+
     </div>
     <!-- end row -->
   </div> <!-- container -->
@@ -178,6 +203,40 @@
     $("#blog_status").val(status);
     $("#update_status_modal").modal('show');
   }
+
+  // 向量化或去向量化
+  function vector_modal_show(blog_id, status){
+    $("#blog_vector_id").val(blog_id);
+    $("#blog_vector_status").val(status);
+    $("#vector_status_modal").modal('show');
+  }
+
+  // 向量化或去向量化请求
+  function update_vector_status() {
+    $("#update_status_modal").modal('hide');
+    var blog_id = $("#blog_vector_id").val();
+    var status = $("#blog_vector_status").val();
+    $.ajax({
+      url: "{% url 'blog_update_status' %}",
+      type: 'POST',
+      data: {
+        "blog_id": blog_id,
+        "status": status
+      },
+      success: function (data) {
+        if (data.code == ERROR_CODE.SUCCESS) {
+          msg_info("操作成功", 'success')
+          // setTimeout(function(){window.location.href = "{% url 'blog_list' %}";}, 1000);
+        } else if (data.code == ERROR_CODE.PARAM_ERROR) {
+          msg_info('参数错误', 'error');
+        }
+      },
+      error: function () {
+        msg_info('操作失败!', 'error');
+      }
+    });
+  }
+
   // 批量删除博客
   function update_status() {
     $("#update_status_modal").modal('hide');

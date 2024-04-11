@@ -281,7 +281,28 @@ def blog_update_status_view(request):
         return http_response(request, statuscode=ERRORCODE.SUCCESS)
     except Exception as e:
         return http_response(request, statuscode=ERRORCODE.FAILED, msg='失败: %s' % e)
+    
+@login_required
+def blog_vector_status_view(request):
+    """
+    向量化 / 删除向量化 视图
+    """
+    form = UpdateBlogStatusForm(request.POST)
+    if not form.is_valid():
+        return http_response(request, statuscode=ERRORCODE.PARAM_ERROR)
 
+    blog_id = form.cleaned_data.get('blog_id')
+    status = form.cleaned_data.get('status')
+
+    # 调用 LangChain_LLM_Utils 向量化或删除向量化（本质为 增加集合 删除集合）
+    try:
+        if Article.objects.filter(id=blog_id).update(status=status) <= 0:
+            return http_response(request, statuscode=ERRORCODE.NOT_FOUND)
+        cache.delete_pattern("tmp_articles")  # 清除缓存
+        cache.delete_pattern("tmp_archive")  # 清除缓存
+        return http_response(request, statuscode=ERRORCODE.SUCCESS)
+    except Exception as e:
+        return http_response(request, statuscode=ERRORCODE.FAILED, msg='失败: %s' % e)
 
 @login_required
 def friend_link_list_view(request):

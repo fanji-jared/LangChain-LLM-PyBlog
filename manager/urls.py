@@ -17,6 +17,8 @@ urlpatterns = [
     path('blog-edit/<int:item_id>/', views.blog_edit_view, name="blog_edit"),
     path('blog-del/', views.blog_del_view, name="blog_del"),
     path('blog-update-status/', views.blog_update_status_view, name="blog_update_status"),
+    # 向量化 / 删除向量化 请求
+    path('blog-vector-status/', views.blog_vector_status_view, name="blog_vector_status"),
 
     # 友情链接
     path('friend-links/', views.friend_link_list_view, name="friend_link_list"),
