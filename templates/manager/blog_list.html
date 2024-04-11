@@ -71,10 +71,10 @@
                 <td>{{ item.last_update|date:'Y-m-d H:i' }}</td>
                 <td style="display: flex;justify-content: space-evenly;">
                   <!-- 向量化文档还是删除向量化数据 -->
-                  {% if item.isVectorize == 1 %}
+                  {% if item.isVectorize == 0 %}
                     <a href="javascript:;" class="btn btn-success btn-sm" onclick="update_status_modal_show('{{ item.id }}', 2)">向量化</a>
-                  {% elif item.isVectorize == 2 %}
-                    <a href="javascript:;" class="btn btn-danger btn-sm" onclick="update_status_modal_show('{{ item.id }}', 1)">去量化</a>
+                  {% elif item.isVectorize == 1 %}
+                    <a href="javascript:;" class="btn btn-danger btn-sm" onclick="update_status_modal_show('{{ item.id }}', 1)">删除量化</a>
                   {% endif %}
                   <!-- 发布还是撤回 -->
                   {% if item.status == 1 %}

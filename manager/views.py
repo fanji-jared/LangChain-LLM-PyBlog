@@ -95,6 +95,14 @@ def change_passwd_view(request):
     }
     return render(request, "manager/change_password.html", data)
 
+def write_to_file(content, file_path):
+    """
+    将内容写入文件
+    :param content: 要写入文件的内容
+    :param file_path: 文件路径
+    """
+    with open(file_path, 'a') as file:  # 'a' 模式表示追加写入
+        file.write(str(content) + '\n')
 
 @login_required
 def blog_list_view(request):
@@ -111,6 +119,14 @@ def blog_list_view(request):
         query &= (Q(title__icontains=title) | Q(classification__name=title) | Q(tags__name=title))
 
     blogs = Article.objects.select_related().filter(query).order_by("-id")
+
+    # 为每个博客对象添加 isVectorize 属性
+    for blog in blogs:
+        # 根据 blog.id 在 milvus数据库 是否存在 来确定 isVectorize 的值
+        write_to_file(blog.id, '/home/fanji/Desktop/blog_info.txt')
+
+        blog.isVectorize = False  # 例如，假设所有博客都没有向量化
+
     blog_list, total = paginate(
         blogs,
         request.GET.get('page') or 1
