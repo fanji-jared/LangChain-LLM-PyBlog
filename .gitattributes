@@ -1,3 +1,4 @@
 *.js linguist-language=python
 *.css linguist-language=python
 *.html linguist-language=python
+LangChain_LLM_Utils/bert-base-chinese-local/model.safetensors filter=lfs diff=lfs merge=lfs -text
