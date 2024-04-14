@@ -1195,6 +1195,12 @@ img.size-full { max-width: 100%; }
 .entry-header{
 position:relative;
 }
+
+.entry-content {
+  max-height: 50vh;
+  overflow: hidden;
+}
+
 .hentry.format-link .entry-content a {
   font-size: 2.125em;
   font-family: 'MiSans-Medium', sans-serif;
