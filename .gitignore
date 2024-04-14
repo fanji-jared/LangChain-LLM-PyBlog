@@ -12,3 +12,4 @@ celery*
 **/__pycache__
 cert/*
 !cert/.empty
+LangChain_LLM_Utils/bert-base-chinese-local/model.safetensors
