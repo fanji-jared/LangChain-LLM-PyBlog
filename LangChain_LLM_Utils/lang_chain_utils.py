@@ -23,13 +23,14 @@ DEFAULT_PROMPT_TEMPLATE = """
 """
 
 class LangChainTool:  
-    def __init__(self, context, question, prompt_template: str = DEFAULT_PROMPT_TEMPLATE):
+    def __init__(self, context, question, ModelName = 'qwen:7b', prompt_template: str = DEFAULT_PROMPT_TEMPLATE):
         """
         根据提示语句和问题生成回答
 
         Args:
             context (str): 用于生成回答的提示语句或背景信息
             question (str): 用户提出的需要回答的问题
+            ModelName (str): ollama 支持的模型名称（默认为阿里云的qwen:7b）
             prompt_template (str): 用于生成LLM模型输入提示的模板，自定义以调整回答的风格和格式
 
         Returns:
@@ -37,8 +38,9 @@ class LangChainTool:
         """
         self.context = context
         self.question = question
+        self.ModelName = ModelName
         # 加载本地ollama模型
-        self.llm = Ollama(model="llama2-chinese")
+        self.llm = Ollama(model=ModelName)
         # 如果没有提供提示词模板，则使用默认的提示词模板
         self.prompt_template = prompt_template
         self.llm_chain = LLMChain(
