@@ -1,64 +1,60 @@
-from pymilvus import connections, Collection, FieldSchema, CollectionSchema, DataType
+import random
+import numpy as np
+from pymilvus import DataType, FieldSchema, MilvusClient, CollectionSchema
 
 class MilvusTool:
     def __init__(self, host='localhost', port='19530'):
         self.host = host
         self.port = port
-        self.client = None
-        self.connect()
+        self.client = MilvusClient(uri=f"http://{ host }:{ port }")
+        if self.client is None:
+            print("连接服务器失败")
+        else:
+            print(f"成功连接到Milvus服务器 {self.host}:{self.port}")
 
-    def connect(self):
+    def create_collection(self, name, dim):
         """
-        初始化连接Milvus
-        """
-        try:
-            self.client = connections.connect(self.host, self.port)
-            print(f"连接到Milvus服务器 {self.host}:{self.port}")
-        except Exception as e:
-            print(f"连接服务器失败。处理步骤: {e}")
-
-    def create_collection(self, collection_name, fields):
-        """
-        创建集合
+        快速创建集合
 
         :param collection_name: 集合名称
-        :param fields: 字段列表，例如：[FieldSchema(name="field1", dtype=DataType.FLOAT_VECTOR, is_primary=True, dim=128)]
-        :return: None
+        :param dim: 向量维度
+        :return: Bool
         """
         if self.client is None:
-            print("Not connected to Milvus server. Please call `connect` first.")
-            return
-
-        if not self.client.has_collection(collection_name):
-            schema = CollectionSchema(fields=fields)
-            self.client.create_collection(collection_name, schema)
-            print(f"集合[ {collection_name} ]创建成功！")
+            print("未连接到Milvus服务器")
+            return False
+        
+        if not self.client.has_collection(name):
+            self.client.create_collection(
+                collection_name = name,
+                dimension = dim
+            )
+            print(f"集合[ {name} ]创建成功！")
         else:
-            print(f"集合[ {collection_name} ]已经存在！")
+            print(f"集合[ {name} ]已经存在！")
     
-    def insert_vectors(self, collection_name, vectors):
+    def insert_vectors(self, name, vectors):
         """
-        批量插入向量到指定的集合中
+        插入向量到指定的集合中
 
         参数:
-            collection_name (str): 集合名称
-            vectors (np.ndarray): 形状为 (n, dim) 的NumPy数组，其中n是向量数量，dim是向量维度
+            name (str): 集合名称
+            vectors (list): 需要插入的数据 [{"id": 1, "vector": [0.3580376395471989, 0.9029438446296592]},{"id": 2, "vector": []}]
   
         返回:
-            list: 插入的向量的ID列表
+            obj: 插入的向量的ID列表
+            {
+                "insert_count": 10,
+                "ids": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+            }
         """
         if self.client is None:
-            raise ValueError("Not connected to Milvus server. Please call `connect` first.")
-          
-        # 使用client直接获取集合
-        collection = self.client.get_collection(collection_name)
-        if collection is None:
-            raise ValueError(f"Collection {collection_name} does not exist.")
+            print("未连接到Milvus服务器")
+            return False
         
-        ids = collection.insert(vectors)
-        return list(ids) # 将返回的ID迭代器转换为列表
+        return self.client.insert( collection_name = name, data = vectors)
     
-    def drop_collection(self, collection_name):
+    def drop_collection(self, name):
         """
         删除集合
 
@@ -66,56 +62,53 @@ class MilvusTool:
         :return: None
         """
         if self.client is None:
-            print("Not connected to Milvus server. Please call `connect` first.")
-            return
+            print("未连接到Milvus服务器")
+            return False
+        
+        return self.client.drop_collection(collection_name = name)
 
-        if self.client.has_collection(collection_name):
-            self.client.drop_collection(collection_name)
-            print(f"Collection {collection_name} dropped successfully.")
-        else:
-            print(f"Collection {collection_name} does not exist.")
-
-    def delete_entity_by_id(self, collection_name, entity_id):
+    def delete_entity_by_id(self, name, id_list):
         """
-        删除集合中指定ID的实体
+        删除集合中 ID list 的实体
 
-        :param collection_name: 集合名称
-        :param entity_id: 要删除的实体的ID
-        :return: 删除结果
+        :param name: 集合名称
+        :param id_list: 要删除的实体的 ID list
+        :return list: 删除的数量
+        {
+            "delete_count": 5
+        }
         """
         if self.client is None:
-            print("Not connected to Milvus server. Please call `connect` first.")
+            print("未连接到Milvus服务器")
             return False
 
-        collection = self.client.get_collection(collection_name)
-        if collection is None:
-            print(f"Collection {collection_name} does not exist.")
-            return False
-
-        res = collection.delete_entity_by_id(entity_id)
-        return res.status.OK
+        return self.client.delete(
+            collection_name = name,
+            ids = id_list
+        )
     
-    def delete_entities_by_query(self, collection_name, query_expr):
+    def delete_entity_by_query(self, name, query_expr):
         """
-        根据查询语句删除集合中满足条件的实体
+        根据 过滤语句 删除 集合中满足条件的实体
 
         参数:
-            collection_name (str): 集合名称
+            name (str): 集合名称
             query_expr (str): 查询表达式，用于过滤要删除的实体
 
         返回:
-            None
+            list 删除的数量
+            {
+                "delete_count": 5
+            }
         """
-        collection = self.client.get_collection(collection_name)
-        if collection is None:
-            raise ValueError(f"Collection {collection_name} does not exist.")
+        if self.client is None:
+            print("未连接到Milvus服务器")
+            return False
 
-        # 执行查询并删除实体
-        status, deleted_ids = collection.delete_entity_by_expression(query_expr)
-        if not status.OK():
-            raise RuntimeError(f"Failed to delete entities: {status.error_msg()}")
-
-        print(f"Deleted {len(deleted_ids)} entities with IDs: {deleted_ids}")
+        return self.client.delete(
+            collection_name = name,
+            filter = query_expr
+        )
 
     def collection_exists(self, collection_name):
         """
@@ -127,5 +120,51 @@ class MilvusTool:
         返回:
             bool: 如果集合存在则返回True，否则返回False
         """
+        if self.client is None:
+            print("未连接到Milvus服务器")
+            return False
+
         return self.client.has_collection(collection_name)
     
+if __name__ == "__main__":
+    """
+    成功连接到Milvus服务器 localhost:19530
+    集合[ articles ]已经存在！
+    集合[ article_1_sentences ]已经存在！
+    {'insert_count': 3, 'ids': [1, 2, 3]}
+    True
+    {'delete_count': 2}
+    {'delete_count': 1}
+    None
+    False
+    """
+    MT = MilvusTool()
+    
+    # 创建集合
+    MT.create_collection("articles", 768)  # 所有文章向量 集合
+    MT.create_collection("article_1_sentences", 768) # id = 1 的文章的所有句子向量 集合
+
+    # 插入向量
+    vectors = [
+        {"id": 1, "vector": [random.random() for _ in range(768)]},
+        {"id": 2, "vector": [random.random() for _ in range(768)]},
+        {"id": 3, "vector": [random.random() for _ in range(768)]}
+    ]
+    re = MT.insert_vectors("articles", vectors)
+    print(re)
+
+    # 检查集合是否存在
+    print(MT.collection_exists("article_1_sentences"))
+
+    # 删除指定ID的实体
+    print(MT.delete_entity_by_id("articles", [1, 2]))
+
+    # 删除满足条件的实体（这里假设使用一个简单的条件）
+    query_expr = "id > 2"
+    print(MT.delete_entity_by_query("articles", query_expr))
+
+    # 删除集合
+    print(MT.drop_collection("article_1_sentences"))
+
+    # 检查集合是否存在
+    print(MT.collection_exists("article_1_sentences"))
