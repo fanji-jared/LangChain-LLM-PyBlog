@@ -1,5 +1,6 @@
 import os
 import re
+from bs4 import BeautifulSoup
 import markdown
 
 class MDTool:
@@ -9,86 +10,45 @@ class MDTool:
         # 句子数
         self.MDLen = 0
 
-    def remove_markdown_links(self):
-        # 正则表达式匹配链接
-        link_pattern = r'\[([^\]]+)\]\(([^)]+)\)'
-        # 使用re.sub替换匹配到的链接为链接文本
-        plain_text = re.sub(link_pattern, r'\1', self.markdown_text)
-        return plain_text
-    
-    def remove_markdown_formatting(self):  
-        # 先去除Markdown中的链接
-        markdown_text_without_links = self.remove_markdown_links()
-        # 将Markdown文本转换为HTML
-        html_text = markdown.markdown(markdown_text_without_links)
-        # 去除HTML标签，不会处理嵌套的标签
-        plain_text = html_text.replace('<', '').replace('>', '')
+    def remove_markdown_formatting(self, markdown_text):
+        # 使用markdown库将Markdown文本转换为HTML
+        html_text = markdown.markdown(markdown_text)
+
+        # 使用BeautifulSoup库去除HTML标签
+        soup = BeautifulSoup(html_text, 'html.parser')
+        plain_text = soup.get_text()
+
         # 去除可能残留的Markdown格式字符，例如斜体、加粗等
-        plain_text = re.sub(r'\*{2}|_{2}', '', plain_text)
+        # 这里假设残留的Markdown格式只包含单个星号或下划线用于强调
+        plain_text = re.sub(r'\*{1,2}|_{1,2}', '', plain_text)
+
         return plain_text.strip()
     
     def split_sentences(self, text):
-        # 正则表达式匹配句子结束符，包括中文和英文的句号、问号和感叹号，以及分号
-        # 同时考虑可能连续出现的标点符号和前后可能存在的空白字符
-        sentence_endings = r'[。！？．；;]+'
+        # 正则表达式匹配句子结束符，包括中文和英文的句号、问号、感叹号和分号
+        sentence_endings = r'[。！？；]+'
+
         # 使用re.split按照句子结束符分割文本，同时去除空白字符
-        sentences = re.split(sentence_endings, text.strip())
+        sentences = re.split(sentence_endings, text)
+
         # 进一步去除空句子和句子前后的空白字符
         sentences = [sentence.strip() for sentence in sentences if sentence.strip()]
+
         return sentences
-
-    def MD2SEP(self) -> str:
-        """
-        根据 博客文章 的 Markdown文本 和 标题 生成 BERT模型 所需的 输入序列
-
-        Args:
-            blog_title (str): 博客文章的标题
-            markdown_text (str): 博客文章的Markdown文本内容
-
-        Returns:
-            str: 符合BERT模型输入格式的序列字符串
-
-        输入序列格式：
-        [CLS] 标题：xxx [SEP] 句子1 [SEP] 句子2 [SEP] ... [SEP] 句子n [SEP]
-
-        其中，[CLS]为分类标记，[SEP]为句子分隔标记，xxx为博客标题，句子1到句子n为Markdown文本解析出的句子
-        """
-        # 初始化输入序列列表
-        input_sequence = ['[CLS]']
-        # 添加标题和分隔符到输入序列
-        input_sequence.append(f"{self.blog_title} [SEP]")
-
-        # 得到 markdown 句子 list
-        sentences = self.split_sentences(self.remove_markdown_formatting())
-  
-        # 遍历每个句子
-        for index, sentence in enumerate(sentences):
-            # 忽略空句子
-            if sentence.strip() and index != (len(sentences)- 1):
-                # 添加句子和分隔符到输入序列
-                input_sequence.append(f"{sentence.strip()} [SEP]")
-
-        # 在序列末尾添加额外的分隔符
-        input_sequence.append('[SEP]')
-
-        # 更新句子数
-        MDLen = len(input_sequence)
-
-        # 将输入序列列表转换为单个字符串
-        pis = ' '.join(input_sequence)
-
-        # 去掉processed_input_sequence中的所有换行符  
-        text = pis.replace('\n', '')
-
-        # 使用正则表达式去除/li、/ol等标签以及多余的空白字符  
-        cleaned_text = re.sub(r'/\w+', '', text).strip().replace('\n', ' ').replace('[SEP] ', '[SEP]')
-
-        # 返回处理后的输入序列字符串
-        return cleaned_text
     
-    # 获取句子数
-    def get_MDLen(self):
-        return self.MDLen
+    def get_sentences(self):
+        # 去除Markdown格式并获取纯文本
+        plain_text = self.remove_markdown_formatting(self.blog_title + '。' + self.markdown_text)
+
+        # 分割纯文本为句子列表
+        sentences_list = self.split_sentences(plain_text)
+
+        # 更新句子数量
+        self.MDLen = len(sentences_list)
+
+        # 返回处理后的句子列表
+        return sentences_list
+
 
 if __name__ == "__main__":
     markdown_text = """
@@ -151,5 +111,8 @@ if __name__ == "__main__":
 职场口才的提升是一个长期且需要不断努力的过程。我们需要不断积累知识与经验、练习口语表达、增强逻辑思维能力、学会倾听与反馈并掌握职场沟通技巧。同时，我们还应积极参与实践、学习优秀演讲者的技巧并不断反思与总结。只有这样，我们才能真正提升自己的职场口才水平，为职业生涯的成功奠定坚实的基础。在未来的职场道路上，让我们不断提升自己的口才能力，以更加自信、从容的姿态面对各种挑战和机遇。
 """
     mdt = MDTool("langchain 快速开始", markdown_text)
-    inputStr = mdt.MD2SEP()
-    print(inputStr)
+    cleaned_sentences = mdt.get_sentences()
+    print(cleaned_sentences)
+
+    # for sentence in cleaned_sentences:
+    #     print(sentence)
