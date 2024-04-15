@@ -76,9 +76,17 @@ class LangChainTool:
 
 if __name__ == "__main__":  
     # 示例的提示语句和问题
-    context = "博客助手AI是一个专门为博客作者提供帮助的人工智能。它可以回答有关博客写作、发布和推广的各种问题。"
-    question = "请问如何撰写一篇吸引读者的博客文章？"
+    context_list = [
+        "健康饮食的关键是保持饮食的均衡和多样性，确保摄入足够的营养。",
+        "蔬菜和水果是健康饮食的重要组成部分，它们富含维生素和矿物质。",
+        "减少高糖、高脂肪和高盐食物的摄入，有助于降低患慢性疾病的风险。",
+        "适量的运动也是保持健康饮食的重要方面，它可以帮助消耗多余的热量。"
+    ]
+    # 将context列表拼接为字符串，用句点加空格分隔句子
+    context = ". ".join(context_list)
 
+    question = "为了保持健康，我应该遵循哪些饮食建议？"
+    
     # 初始化LangChainTool对象
     lct = LangChainTool(context, question)
 
@@ -88,10 +96,3 @@ if __name__ == "__main__":
     # 打印回答
     print("生成的回答:")
     print(answer)
-      
-    # 如果需要，还可以打印提示语句和问题用于调试
-    print("使用的提示语句:")
-    print(lct.get_context())
-
-    print("提出的问题:")
-    print(lct.get_question())
