@@ -126,6 +126,43 @@ class MilvusTool:
 
         return self.client.has_collection(collection_name)
     
+    def search_vectors(self, name, query_vectors, limit):
+        """
+        检查指定的集合是否存在
+
+        参数:
+            collection_name (str): 集合名称
+            query_vectors (vector): 要查询的向量 query_vectors = [[0.041732933, -0.013061441, 0.009748648]]
+            limit (int): 限制搜索结果数量
+        返回:
+            bool: 如果集合存在则返回: 包含三个字典的子列表的列表，表示返回的实体及其 ID 和距离
+            [
+                [
+                    {
+                        "id": 548,
+                        "distance": 0.08589144051074982,
+                        "entity": {}
+                    },
+                    {
+                        "id": 736,
+                        "distance": 0.07866684347391129,
+                        "entity": {}
+                    },
+                    {
+                        "id": 928,
+                        "distance": 0.07650312781333923,
+                        "entity": {}
+                    }
+                ]
+            ]
+            否则返回: False
+        """
+        if self.client is None:
+            print("未连接到Milvus服务器")
+            return False
+        re = self.client.search(collection_name = name, data = query_vectors, limit = limit,)
+        return re
+
 if __name__ == "__main__":
     """
     成功连接到Milvus服务器 localhost:19530
@@ -168,3 +205,6 @@ if __name__ == "__main__":
 
     # 检查集合是否存在
     print(MT.collection_exists("article_1_sentences"))
+
+    # 向量相似度比较
+    print(MT.search_vectors("articles", [random.random() for _ in range(768)], 3))
