@@ -6,5 +6,5 @@ from . import views
 
 urlpatterns = [
     path('blog-list/', views.blog_list),
-    path('get-banners/', views.get_banners),
+    path('get-banners/', views.get_banners)
 ]
