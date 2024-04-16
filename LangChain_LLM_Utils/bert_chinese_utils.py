@@ -44,6 +44,7 @@ class BertModelTool:
             self.model.save_pretrained(self.save_directory)
         
         self.model.eval()  # 设置模型为评估模式
+        return True
 
     def get_tokenizer(self):
         return self.tokenizer
