@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="Coderthemes">
     <link rel="shortcut icon" href="/static/images/logo.png" type="image/x-icon" />
+    <!-- 加载动画专用css -->
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/load.css' %}">
     <title>博客管理后台</title>
     {% include 'manager/base/css.html' %}
     {% block css %}
