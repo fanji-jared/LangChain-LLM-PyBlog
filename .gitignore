@@ -13,3 +13,4 @@ celery*
 cert/*
 !cert/.empty
 LangChain_LLM_Utils/bert-base-chinese-local/model.safetensors
+LangChain_LLM_Utils/vectorization_status.txt
