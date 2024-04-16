@@ -401,7 +401,7 @@ def get_vectorization_process(request):
     # 获取当前向量化 流程步骤 和 完成百分比
     try:
         current_time, current_step, progress = read_vectorization_status()
-        Print(f"当前时间: {current_time}, 步骤: {current_step}, 完成度: {progress:.2f}")
+        # Print(f"当前时间: {current_time}, 步骤: {current_step}, 完成度: {progress:.2f}")
 
         return http_response(request, statuscode=ERRORCODE.SUCCESS, context={
             "current_time": str(current_time),
