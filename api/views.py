@@ -12,6 +12,14 @@ from .forms import (
     BlogListForm
 )
 
+from enum import Enum  
+  
+class VectorizationProcess(Enum):
+    ARTICLE_FORMAT = "ArticleFormat"
+    TEXT_VEC = "TextVec"
+    SENT_VEC = "SentVec"
+    FULL_VEC_STORE = "FullVecStore"
+    SENT_VEC_STORE = "SentVecStore"
 
 def blog_list(request):
     form = BlogListForm(request.GET)
@@ -60,3 +68,16 @@ def get_banners(request):
         "banner_list": banner_list
     }
     return http_response(request, statuscode=ERRORCODE.SUCCESS, context=context)
+
+def get_vectorization_process(request):
+
+    
+
+    # 获取当前向量化 流程步骤 和 完成百分比
+    urrent_step = VectorizationProcess.TEXT_VEC
+    progress = 0.75
+
+    return http_response(request, statuscode=ERRORCODE.SUCCESS, context={
+        "urrent_step": urrent_step,
+        "progress": progress
+    })

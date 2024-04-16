@@ -6,11 +6,12 @@ var ERROR_CODE = {
   IN_BLACKLIST: 6,
   PARAM_ERROR: 12,
   NOT_FOUND: 13,
-  NOT_LOGIN: 14
+  NOT_LOGIN: 14,
+  START_VECTOR: 20
 };
 
 // 高德地图js API
-var AMAP_KEY = "298b1d5aea8d521f18485063c094a914"
+var AMAP_KEY = "xxxxxxxxxxxxxxxxx"
 
 function msg_info(msg, type, timeout) {
   if (!type) type = 'info';
