@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import os
 import urllib.parse
 from datetime import datetime
 from django.core.cache import cache
@@ -25,7 +26,36 @@ from manager.forms import (
     SearchBlogForm, AddFriendLinkForm, OperateOwnMessageForm, LoginForm, AddAuthorForm,
     AddMusicForm, AddCarouselForm, OperateBlogForm, ChangePasswordForm, UpdateBlogStatusForm
 )
+from django.core.exceptions import ObjectDoesNotExist
 
+from enum import Enum  
+  
+class VectorizationProcess(Enum):
+    ARTICLE_FORMAT = "ArticleFormat"
+    TEXT_VEC = "TextVec"
+    SENT_VEC = "SentVec"
+    FULL_VEC_STORE = "FullVecStore"
+    SENT_VEC_STORE = "SentVecStore"
+
+# 导入工具使用类
+from LangChain_LLM_Utils import Manger
+LLUM = Manger()
+
+# 测试方法 代替print
+def Print(content, file_path = '/home/fanji/Desktop/blog_info.txt'):
+    """
+    将内容写入文件
+    :param content: 要写入文件的内容
+    :param file_path: 文件路径
+    """
+    # 获取当前时间并格式化为字符串  
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    with open(file_path, 'a') as file:  # 'a' 模式表示追加写入
+        file.write(f"{ current_time }: { str(content) } \n")
+
+from concurrent.futures import ThreadPoolExecutor  
+  
+executor = ThreadPoolExecutor(max_workers = 10)  # 设置线程池大小
 
 def login_view(request):
     """
@@ -95,15 +125,6 @@ def change_passwd_view(request):
     }
     return render(request, "manager/change_password.html", data)
 
-def write_to_file(content, file_path):
-    """
-    将内容写入文件
-    :param content: 要写入文件的内容
-    :param file_path: 文件路径
-    """
-    with open(file_path, 'a') as file:  # 'a' 模式表示追加写入
-        file.write(str(content) + '\n')
-
 @login_required
 def blog_list_view(request):
     """
@@ -122,10 +143,12 @@ def blog_list_view(request):
 
     # 为每个博客对象添加 isVectorize 属性
     for blog in blogs:
-        # 根据 blog.id 在 milvus数据库 是否存在 来确定 isVectorize 的值
-        write_to_file(blog.id, '/home/fanji/Desktop/blog_info.txt')
-
-        blog.isVectorize = False  # 例如，假设所有博客都没有向量化
+        try:
+            # 根据 blog.id 在 milvus数据库 是否存在 来确定 isVectorize 的值
+            blog.isVectorize = LLUM.getIDVectorize(blog.id)
+        except:
+            # 默认，假设所有博客都没有向量化
+            blog.isVectorize = False
 
     blog_list, total = paginate(
         blogs,
@@ -291,18 +314,104 @@ def blog_vector_status_view(request):
     if not form.is_valid():
         return http_response(request, statuscode=ERRORCODE.PARAM_ERROR)
 
-    blog_id = form.cleaned_data.get('blog_id')
-    status = form.cleaned_data.get('status')
+    blog_id = int(form.cleaned_data.get('blog_id'))
+    status = int(form.cleaned_data.get('status'))
 
     # 调用 LangChain_LLM_Utils 向量化或删除向量化（本质为 增加集合 删除集合）
     try:
-        if Article.objects.filter(id=blog_id).update(status=status) <= 0:
-            return http_response(request, statuscode=ERRORCODE.NOT_FOUND)
-        cache.delete_pattern("tmp_articles")  # 清除缓存
-        cache.delete_pattern("tmp_archive")  # 清除缓存
-        return http_response(request, statuscode=ERRORCODE.SUCCESS)
+        # 尝试获取具有特定ID的文章对象  
+        article = Article.objects.get(id = blog_id)
+
+        # 获取文章标题和内容
+        title = str(article.title)
+        content = str(article.content)
+
+        Print(status)
+
+        # 当前选项没有向量化，想要向量化，值为 1
+        if status == 1:
+
+            # 开始向量化 !!异步操作!!
+            executor.submit(LLUM.article_vector, blog_id, title, content)
+
+            # 返回成功响应
+            return http_response(request, statuscode=ERRORCODE.START_VECTOR, msg=title)
+        elif status == 2: # 当前选项已经向量化，想要去向量化，值为 2
+            # 开始去向量化
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            # 返回成功响应
+            return http_response(request, statuscode=ERRORCODE.START_VECTOR, msg=title)
+    
+    except ObjectDoesNotExist:
+        # 如果文章不存在，返回参数错误响应
+        return http_response(request, statuscode=ERRORCODE.PARAM_ERROR, message='ID not exist')
+    
     except Exception as e:
+        # 返回通用错误响应
         return http_response(request, statuscode=ERRORCODE.FAILED, msg='失败: %s' % e)
+
+def read_vectorization_status(file_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "LangChain_LLM_Utils", "vectorization_status.txt")
+):
+    """
+    读取向量化流程的状态和完成百分比（0到1之间的小数）
+
+    :param file_path: 目标文件路径
+    :return: 一个包含当前时间、当前步骤和完成百分比的元组
+    """
+    # 检查文件是否存在
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"文件 {file_path} 不存在")
+    
+    # 尝试读取文件内容
+    try:
+        with open(file_path, 'r') as file:
+            content = file.read().strip()  # 读取文件内容并去除首尾空白字符
+    except IOError as e:
+        raise IOError(f"发生I/O错误: {e.strerror}")
+    
+    # 分割内容并检查格式
+    parts = content.split('|')
+    if len(parts) != 3:
+        raise ValueError(f"文件 {file_path} 格式无效。应包含由'|'分隔的3个部分")
+    
+    # 尝试转换时间为datetime对象
+    try:
+        current_time = datetime.strptime(parts[0], "%Y-%m-%d %H:%M:%S")
+    except ValueError as e:
+        raise ValueError(f"文件 {file_path} 中的时间格式无效: {e}")
+      
+    # 检查步骤是否为字符串
+    current_step = parts[1]
+    if not isinstance(current_step, str):
+        raise ValueError(f"文件 {file_path} 中的当前步骤格式无效 应为字符串")
+    
+    # 将完成百分比转换为浮点数
+    try:
+        completion_percentage = float(parts[2])
+        if not (0 <= completion_percentage <= 1):
+            raise ValueError("完成百分比应在0到1之间")
+    except ValueError as e:
+        raise ValueError(f"文件 {file_path} 中的完成百分比格式无效: {e}")
+      
+    # 返回结果
+    return current_time, current_step, completion_percentage
+
+@login_required
+def get_vectorization_process(request):
+    # 获取当前向量化 流程步骤 和 完成百分比
+    try:
+        current_time, current_step, progress = read_vectorization_status()
+        Print(f"当前时间: {current_time}, 步骤: {current_step}, 完成度: {progress:.2f}")
+
+        return http_response(request, statuscode=ERRORCODE.SUCCESS, context={
+            "current_time": str(current_time),
+            "current_step": str(current_step),
+            "progress": str(progress)
+        })
+
+    except Exception as e:
+        Print(f"读取向量化状态时发生错误: {e}")
+        return http_response(request, statuscode=ERRORCODE.UNKNOWN, context={f"读取向量化状态时发生错误: {e}"})
 
 @login_required
 def friend_link_list_view(request):

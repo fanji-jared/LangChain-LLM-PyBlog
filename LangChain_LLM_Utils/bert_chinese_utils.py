@@ -1,9 +1,20 @@
+from datetime import datetime
+import tempfile
 import torch
 from transformers import BertTokenizer, BertModel
 
 from pathlib import Path
 
 import os
+
+from enum import Enum  
+  
+class VectorizationProcess(Enum):
+    ARTICLE_FORMAT = "ArticleFormat"
+    TEXT_VEC = "TextVec"
+    SENT_VEC = "SentVec"
+    FULL_VEC_STORE = "FullVecStore"
+    SENT_VEC_STORE = "SentVecStore"
 
 class BertModelTool:
     def __init__(self, save_directory='./bert-base-chinese-local'):
@@ -78,14 +89,40 @@ class BertModelTool:
         # 返回 文章整体嵌入 数组
         return sentence_embeddings.cpu().numpy()
     
+    def save_vectorization_status(self, current_step, completion_percentage, file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "vectorization_status.txt")):
+        """
+        将向量化流程的状态和完成百分比写入文件，使用临时文件确保数据完整性
+
+        :param current_step: 当前向量化流程的步骤
+        :param completion_percentage: 完成进度 小数
+        :param file_path: 目标文件路径
+        """
+        # 获取当前时间并格式化为字符串
+        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        # 准备要写入文件的内容
+        content = f"{current_time}|{current_step}|{completion_percentage:.2f}"
+        # 创建一个临时文件来写入内容
+        with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
+            tmp_file.write(content.encode())  # 写入内容到临时文件，注意encode为字节流
+        # 获取临时文件的路径
+        tmp_file_path = tmp_file.name
+        # 使用原子操作替换原文件，确保数据一致性
+        try:
+            os.replace(tmp_file_path, file_path)  # 在Python 3.3及以上版本使用os.replace
+        except AttributeError:  
+            # 对于Python 3.2及以下版本，使用os.rename，但注意它可能不是原子操作
+            os.rename(tmp_file_path, file_path)
+        # 删除临时文件（如果delete=True，则不需要这一步，但在上面的代码中设置为了False
+        os.remove(tmp_file_path)
+
     def get_sentences_embeddings(self, sentences_list):
         """  
         获取句子列表中每个句子的嵌入表示
     
-        Args:  
+        Args:
             sentences_list (list): 句子列表，每个句子将被单独处理以获取嵌入
     
-        Returns:  
+        Returns:
             list: 包含每个句子嵌入的 NumPy 数组的列表
             [
                 array([[ 1.23959875e+00,  2.59410173e-01 1.74765006e-01, -2.03462631e-01]], dtype=float32),
@@ -95,9 +132,10 @@ class BertModelTool:
         # 初始化一个空列表来存储句子嵌入
         sentence_embeddings = []
         # 遍历每个句子
-        for i, sentence in enumerate(sentences_list, start=1):  
+        for i, sentence in enumerate(sentences_list, start = 1):  
             self.nowSentencesI = i
             print(i)
+            self.save_vectorization_status(VectorizationProcess.TEXT_VEC.value, i / len(sentences_list))  # 传出 i
             
             # 文本标记化
             inputs = self.tokenizer(sentence, return_tensors="pt", add_special_tokens=True, truncation=True, max_length=512, padding='max_length', return_overflowing_tokens=False)
