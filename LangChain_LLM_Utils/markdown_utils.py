@@ -17,10 +17,16 @@ class MDTool:
         # 使用BeautifulSoup库去除HTML标签
         soup = BeautifulSoup(html_text, 'html.parser')
         plain_text = soup.get_text()
-
+        
+        # 去除 \n
+        plain_text = plain_text.replace('\n', ' ')
+  
         # 去除可能残留的Markdown格式字符，例如斜体、加粗等
-        # 这里假设残留的Markdown格式只包含单个星号或下划线用于强调
-        plain_text = re.sub(r'\*{1,2}|_{1,2}', '', plain_text)
+        # 这里尝试更全面地处理残留的Markdown格式字符
+        plain_text = re.sub(r'[*_]+', '', plain_text)  # 匹配一个或多个连续的星号或下划线
+  
+        # 可能还需要处理其他Markdown语法，例如`~~删除文本~~`等
+        # plain_text = re.sub(r'~~.+?~~', '', plain_text)  # 匹配并删除删除线文本，注意这可能会删除包含~~的合法文本
 
         return plain_text.strip()
     
