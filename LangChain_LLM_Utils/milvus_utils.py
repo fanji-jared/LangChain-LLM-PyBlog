@@ -9,10 +9,8 @@ class MilvusTool:
         self.client = MilvusClient(uri=f"http://{ host }:{ port }")
         if self.client is None:
             print("连接服务器失败")
-            return False
         else:
             print(f"成功连接到Milvus服务器 {self.host}:{self.port}")
-            return True
 
     def create_collection(self, name, dim):
         """

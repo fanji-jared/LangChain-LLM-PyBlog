@@ -44,7 +44,6 @@ class BertModelTool:
             self.model.save_pretrained(self.save_directory)
         
         self.model.eval()  # 设置模型为评估模式
-        return True
 
     def get_tokenizer(self):
         return self.tokenizer
@@ -57,13 +56,14 @@ class BertModelTool:
 
     def get_article_embedding(self, sentences_list):
         """  
-        获取整篇文章的嵌入表示。  
+        获取整篇文章的嵌入表示
     
         Args:  
-            sentences_list (list): 句子列表，用于合并成整篇文章。  
+            sentences_list (list): 句子列表，用于合并成整篇文章
     
         Returns:  
-            numpy.ndarray: 文章整体嵌入的NumPy数组。  
+            numpy.ndarray: 文章整体嵌入的 NumPy 数组
+            [[ 1.18853319e+00 -1.04827571e+00 7.83498824e-01 -3.44603896e-01 ]]
         """
         # 合并句子列表为一个长文本
         article_text = ' '.join(sentences_list)
@@ -80,13 +80,17 @@ class BertModelTool:
     
     def get_sentences_embeddings(self, sentences_list):
         """  
-        获取句子列表中每个句子的嵌入表示。  
+        获取句子列表中每个句子的嵌入表示
     
         Args:  
-            sentences_list (list): 句子列表，每个句子将被单独处理以获取嵌入。  
+            sentences_list (list): 句子列表，每个句子将被单独处理以获取嵌入
     
         Returns:  
-            list: 包含每个句子嵌入的NumPy数组的列表。  
+            list: 包含每个句子嵌入的 NumPy 数组的列表
+            [
+                array([[ 1.23959875e+00,  2.59410173e-01 1.74765006e-01, -2.03462631e-01]], dtype=float32),
+                array([[ 1.23959875e+00,  2.59410173e-01 1.74765006e-01, -2.03462631e-01]], dtype=float32)
+            ]
         """
         # 初始化一个空列表来存储句子嵌入
         sentence_embeddings = []

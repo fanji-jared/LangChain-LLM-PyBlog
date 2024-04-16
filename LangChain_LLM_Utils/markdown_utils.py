@@ -9,7 +9,6 @@ class MDTool:
         self.markdown_text = markdown_text
         # 句子数
         self.MDLen = 0
-        return True
 
     def remove_markdown_formatting(self, markdown_text):
         # 使用markdown库将Markdown文本转换为HTML
