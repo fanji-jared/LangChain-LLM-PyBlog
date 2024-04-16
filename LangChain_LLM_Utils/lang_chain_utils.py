@@ -74,7 +74,7 @@ class LangChainTool:
         return self.question
 
 
-if __name__ == "__main__":  
+if __name__ == "__main__":
     # 示例的提示语句和问题
     context_list = [
         "健康饮食的关键是保持饮食的均衡和多样性，确保摄入足够的营养。",
@@ -88,10 +88,10 @@ if __name__ == "__main__":
     question = "为了保持健康，我应该遵循哪些饮食建议？"
     
     # 初始化LangChainTool对象
-    lct = LangChainTool(context, question)
+    LCT = LangChainTool(context, question)
 
     # 运行并获取回答
-    answer = lct.getrun()
+    answer = LCT.getrun()
 
     # 打印回答
     print("生成的回答:")

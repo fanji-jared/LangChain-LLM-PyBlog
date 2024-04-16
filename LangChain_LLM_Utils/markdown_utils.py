@@ -110,8 +110,8 @@ if __name__ == "__main__":
 
 职场口才的提升是一个长期且需要不断努力的过程。我们需要不断积累知识与经验、练习口语表达、增强逻辑思维能力、学会倾听与反馈并掌握职场沟通技巧。同时，我们还应积极参与实践、学习优秀演讲者的技巧并不断反思与总结。只有这样，我们才能真正提升自己的职场口才水平，为职业生涯的成功奠定坚实的基础。在未来的职场道路上，让我们不断提升自己的口才能力，以更加自信、从容的姿态面对各种挑战和机遇。
 """
-    mdt = MDTool("langchain 快速开始", markdown_text)
-    cleaned_sentences = mdt.get_sentences()
+    MDT = MDTool("langchain 快速开始", markdown_text)
+    cleaned_sentences = MDT.get_sentences()
     print(cleaned_sentences)
 
     # for sentence in cleaned_sentences:
