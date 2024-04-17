@@ -128,7 +128,7 @@ class MilvusTool:
     
     def search_vectors(self, name, query_vectors, limit):
         """
-        检查指定的集合是否存在
+        查询相似向量
 
         参数:
             collection_name (str): 集合名称
@@ -166,14 +166,15 @@ class MilvusTool:
 if __name__ == "__main__":
     """
     成功连接到Milvus服务器 localhost:19530
-    集合[ articles ]已经存在！
-    集合[ article_1_sentences ]已经存在！
+    集合[ articles ]创建成功！
+    集合[ article_1_sentences ]创建成功！
     {'insert_count': 3, 'ids': [1, 2, 3]}
     True
     {'delete_count': 2}
     {'delete_count': 1}
     None
     False
+    [[{'id': 3, 'distance': 0.7712190747261047, 'entity': {}}]]
     """
     MT = MilvusTool()
     
@@ -206,5 +207,6 @@ if __name__ == "__main__":
     # 检查集合是否存在
     print(MT.collection_exists("article_1_sentences"))
 
-    # 向量相似度比较
-    print(MT.search_vectors("articles", [random.random() for _ in range(768)], 3))
+    # 向量相似度搜索
+    vectors = [[random.random() for _ in range(768)]]
+    print(MT.search_vectors("articles", vectors, 3))
