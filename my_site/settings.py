@@ -106,6 +106,10 @@ CACHES = {
     },
 }
 
+# Celery配置
+CELERY_BROKER_URL = f'redis://{REDIS_HOST}:{REDIS_PORT}/1'
+CELERY_RESULT_BACKEND = f'redis://{REDIS_HOST}:{REDIS_PORT}/1'
+
 # celery config
 from config.celery_conf import *
 
