@@ -336,91 +336,73 @@
     }
   }
 
+  // 全局对象
   timerId = null;
-  current_time = null;
-  current_step = null;
-  progress = null;
+
+  // 在Django中它是32654,
+  const COMMON_BASE = 32654;
+
+  // 全局 ERRORCODE 对象，定义不同的状态码，与Django后端保持一致
+  ERRORCODE = {
+    SUCCESS: 0, // 成功状态码
+    UNKNOWN: 1, // 未知错误状态码
+    START_VECTOR: COMMON_BASE + 1, // 向量化流程开始
+    REMOVE_VECTOR: COMMON_BASE + 2, // 去除向量化流程开始
+    NO_TASK: COMMON_BASE + 3, // 没有任务状态码
+    TASK_OVER: COMMON_BASE + 4, // 任务已完成状态码
+  };
 
   // 在模态框显示时执行
   $('#taskModal').on('show.bs.modal', function (event) {
-    first_current_time = null;
-    first_current_step = null;
-    first_progress = null;
-    count = 0;
-
-    // 记录时间
-    $.ajax({
-      url: "{% url 'get_Vectorization_Process' %}",
-      type: 'GET',
-      dataType: 'json',
-      success: function (data, textStatus, jqXHR) {
-        first_current_time = data.current_time;
-        first_current_step = data.current_step;
-        first_progress = data.progress;
-        console.log('First Current time:', first_current_time);
-        console.log('First Current step:', first_current_step);
-        console.log('First Progress:', first_progress);
-        // 播放动画
-        pauseAnimation();
-        // 更新进度条
-        updateProgress(current_step, progress);
-        // 完成
-        if (current_step == "SentVecStore" && progress >= 1) {
-          msg_info("向量化流程操作完成！5s 后自动关闭窗口!", 'success');
-          // 暂停动画
-          pauseAnimation();
-          // 关闭定时器
-          clearInterval(timerId);
-          // 5s 后关闭窗口
-          setTimeout(function () {
-            $('#taskModal').modal('hide');
-          }, 5000);
-        }
-      }, error: function (jqXHR, textStatus, errorThrown) {
-        console.error('首次获取进度出错:', textStatus, errorThrown);
-        // 暂停动画
-        pauseAnimation();
-      }
-    });
-
-    // 设置定时器 轮询得到向量化总进度
+    // 设置定时器，轮询得到向量化总进度
     timerId = setInterval(function () {
-
       $.ajax({
         url: "{% url 'get_Vectorization_Process' %}",
         type: 'GET',
         dataType: 'json',
-        success: function (data, textStatus, jqXHR) {
-          current_time = data.current_time;
-          current_step = data.current_step;
-          progress = data.progress;
-          console.log('Current time:', current_time);
-          console.log('Current step:', current_step);
-          console.log('Progress:', progress);
-          if (first_current_time == null) {
-            first_current_time = current_time;
-          } else {
-            if (current_time == first_current_time && count >= 3) {
-              // 暂停动画
-              pauseAnimation();
-              msg_info('获取进度超时，服务器未更新！', 'error');
-              if (count >= 10) {
-                // 关闭定时器
-                clearInterval(timerId);
-                // 关闭此窗口
-                $('#taskModal').modal('hide');
-              }
-            } else {
-              // 播放动画
-              pauseAnimation();
-            }
-          }
+        success: function (data) {
+          var statusCode = data.code;
+          console.log(statusCode);
 
+          if (statusCode === ERRORCODE.SUCCESS) {
+            var current_step = data.context.current_step;
+            var progress = data.context.progress;
+            // 播放动画
+            playAnimation();
+            // 更新进度条
+            updateProgress(current_step, progress);
+          } else if (statusCode === ERRORCODE.TASK_OVER) {
+            msg_info("向量化流程操作完成！3s 后自动关闭窗口!", 'success');
+            // 暂停动画
+            pauseAnimation();
+            // 关闭定时器
+            clearInterval(timerId);
+            // 3s 后关闭窗口
+            setTimeout(function () {
+              $('#taskModal').modal('hide');
+            }, 3000);
+          } else if (statusCode === ERRORCODE.NO_TASK) {
+            // 暂停动画
+            pauseAnimation();
+            msg_info('没有流程化任务！', 'error');
+            // 关闭定时器
+            clearInterval(timerId);
+            // 关闭此窗口
+            $('#taskModal').modal('hide');
+          } else if (statusCode === ERRORCODE.UNKNOWN) {
+            // 暂停动画
+            pauseAnimation();
+            msg_info('读取向量化状态时发生错误: (' + data.context, ') 5s 后自动关闭窗口!"');
+            // 关闭定时器
+            clearInterval(timerId);
+            // 5s 后关闭窗口
+            setTimeout(function () {
+              $('#taskModal').modal('hide');
+            }, 5000);
+          }
         },
         error: function (jqXHR, textStatus, errorThrown) {
           console.error('获取进度出错:', textStatus, errorThrown);
-          // 暂停动画
-          pauseAnimation();
           msg_info('获取进度出错', 'error');
           // 关闭定时器
           clearInterval(timerId);
@@ -428,16 +410,16 @@
           $('#taskModal').modal('hide');
         }
       });
-      count++;
-
-    }, 3000);
+    }, 3000); // 每3秒钟轮询一次
   });
 
   // 在模态框关闭时执行
   $('#taskModal').on('hide.bs.modal', function (event) {
     // 关闭轮询定时器
-    clearInterval(timerId);
-  })
+    if (timerId) {
+      clearInterval(timerId);
+    }
+  });
 
   // 向量化或去向量化请求
   function update_vector_status() {
@@ -452,10 +434,10 @@
         "status": status
       },
       success: function (data) {
-        if (data.code == ERROR_CODE.START_VECTOR) {
-          msg_info("开始向量化流程", 'success')
+        if (data.code == ERRORCODE.START_VECTOR) {
+          msg_info("开始向量化流程", 'success');
           $('#taskModal').modal('show');
-        } else if (data.code == ERROR_CODE.PARAM_ERROR) {
+        } else if (data.code == ERRORCODE.PARAM_ERROR) {
           msg_info('参数 id 错误', 'error');
           $('#taskModal').modal('hide');
         }

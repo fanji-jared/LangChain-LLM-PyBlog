@@ -120,7 +120,3 @@ class CommonError(object):
     WEIXIN_NOT_LOGIN = StatusCode(COMMON_BASE + 16, 'Weixin Not login.', '微信未登录')
     SUPERUSER_PERMISSION_DENIED = StatusCode(COMMON_BASE + 17, 'Sorry,Superuser Permission Denied.', '超级管理员权限不足')
     WALLET_NOT_ENOUGH = StatusCode(COMMON_BASE + 18, 'wallet not enough', '钱包余额不足')
-
-    # 直接加算了
-    START_VECTOR = StatusCode(COMMON_BASE + 20, 'Vectorization is beginning', '向量化流程开始')
-    
