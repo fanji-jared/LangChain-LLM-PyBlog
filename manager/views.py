@@ -34,11 +34,8 @@ LLUM = Manger()
 from article.tasks import article_vector_task
 
 # 获取 SharedProgress 单例实例
-from LangChain_LLM_Utils.SharedProgress_Been import SharedProgress, VectorizationProcess
-if(not SharedProgress.is_none()):
-    SP = SharedProgress.get_shared_progress()
-else:
-    SP = None
+from LangChain_LLM_Utils.SharedProgress_Been import SharedProgress
+SP = SharedProgress._instance
 
 # 测试方法 代替print
 def Print(content, file_path = '/home/fanji/Desktop/blog_info.txt'):
@@ -353,7 +350,7 @@ def get_vectorization_process(request):
     # 获取当前向量化 流程步骤 和 完成百分比
     try:
         # 检查任务状态并返回相应信息
-        if SP:
+        if SP is None:
             return http_response(request, statuscode=ERRORCODE.NO_TASK)  # 没有流程化任务
         elif SP.is_task_over():
             return http_response(request, statuscode=ERRORCODE.TASK_OVER) #  流程化任务结束

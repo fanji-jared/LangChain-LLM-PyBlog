@@ -53,30 +53,22 @@ class Manger:
         Returns:
             None
         """
-        Print(000000000000000000000000000000000000000000000000000000000000000000000000000000)
         # 获取 SharedProgress 单例实例
         SP = SharedProgress.get_shared_progress()
-
-        
-        # 获取当前时间并格式化为字符串  
-        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        with open("/home/fanji/Desktop/blog_info.txt", 'a') as file:  # 'a' 模式表示追加写入
-            file.write(f"{ current_time }: { str(SP is None) } \n")
 
         #################################### 1. 格式化文章 - Article Format       ####################################
         if self.MDT is None:
             self.MDT = markdown_utils.MDTool(title, content)
         sentences_list = self.MDT.get_sentences()
 
-        # 在单独的线程中执行
-        # sentences_list = await asyncio.to_thread(self.MDT.get_sentences)
-
-        Print(111111111111111111111111111111111111111111111111111111111111111111111111111111)
-        Print(sentences_list)
-
         # 设置状态和进度
-        SP.current_step = VectorizationProcess.ARTICLE_FORMAT.value
-        SP.progress =  1.00 if sentences_list else 0.00
+        SP.set_progress(VectorizationProcess.ARTICLE_FORMAT.value)
+        if len(sentences_list) > 0 :
+            SP.set_progress(1.00)
+            Print(111111111111111111111111111111111111111111111111111111111111111111111111111111)
+        else:
+            SP.set_progress(0.00)
+            SP.reset()
 
 
         #################################### 2. 向量化全文 - Text Vec             ####################################
@@ -84,15 +76,14 @@ class Manger:
             self.BML = bert_chinese_utils.BertModelTool()
         article_embedding_list = self.BML.get_article_embedding(sentences_list)
 
-        # 在单独的线程中执行
-        # article_embedding_list = await asyncio.to_thread(self.BML.get_article_embedding, sentences_list)
-
-        Print(222222222222222222222222222222222222222222222222222222222222222222222222222222)
-        Print(article_embedding_list)
-
         # 设置状态和进度
-        SP.current_step = VectorizationProcess.TEXT_VEC.value
-        SP.progress =  1.00 if article_embedding_list else 0.00
+        SP.set_progress(VectorizationProcess.TEXT_VEC.value)
+        if article_embedding_list.size > 0 :
+            SP.set_progress(1.00)
+            Print(222222222222222222222222222222222222222222222222222222222222222222222222222222)
+        else:
+            SP.set_progress(0.00)
+            SP.reset()
 
 
         #################################### 3. 向量化句子 - Sent Vec             ####################################
@@ -100,15 +91,16 @@ class Manger:
             self.BML = bert_chinese_utils.BertModelTool()
         sentences_embeddings_list = self.BML.get_sentences_embeddings(sentences_list)
 
-        # 在单独的线程中执行
-        # sentences_embeddings_list = await asyncio.to_thread(self.BML.get_sentences_embeddings, sentences_list)
-
-        Print(333333333333333333333333333333333333333333333333333333333333333333333333333333)
-        Print(sentences_embeddings_list)
-
         # 设置状态和进度
-        SP.current_step = VectorizationProcess.SENT_VEC.value
-        SP.progress =  1.00 if sentences_embeddings_list else 0.00
+        SP.set_progress(VectorizationProcess.SENT_VEC.value)
+        if len(sentences_embeddings_list) > 0 :
+            SP.set_progress(1.00)
+            Print(333333333333333333333333333333333333333333333333333333333333333333333333333333)
+        else:
+            SP.set_progress(0.00)
+            SP.reset()
+
+        SP.set_over()
 
 
         #################################### 4. 存储全文向量 - Full Vec Store      ####################################
