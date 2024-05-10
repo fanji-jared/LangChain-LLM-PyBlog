@@ -35,7 +35,7 @@ from article.tasks import article_vector_task
 
 # 获取 SharedProgress 单例实例
 from LangChain_LLM_Utils.SharedProgress_Been import SharedProgress
-SP = SharedProgress._instance
+SP = SharedProgress()
 
 # 测试方法 代替print
 def Print(content, file_path = '/home/fanji/Desktop/blog_info.txt'):
@@ -116,6 +116,7 @@ def change_passwd_view(request):
         'form': form
     }
     return render(request, "manager/change_password.html", data)
+
 
 @login_required
 def blog_list_view(request):
@@ -324,10 +325,10 @@ def blog_vector_status_view(request):
             Print("# 开始向量化 !!启动了一个异步任务!!")
 
             # 使用 Celery 来调用向量化操作函数
-            article_vector_task.delay(blog_id, title, content)
+            task = article_vector_task.delay(blog_id, title, content)
 
-            # 返回成功响应
-            return http_response(request, statuscode=ERRORCODE.START_VECTOR, msg=title)
+            # 返回成功响应 TaskId
+            return http_response(request, statuscode=ERRORCODE.START_VECTOR, msg=task.id)
         elif status == 2: # 当前选项已经向量化，想要去向量化，值为 2
             # 开始去向量化
             # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -347,26 +348,38 @@ def blog_vector_status_view(request):
 
 @login_required
 def get_vectorization_process(request):
-    # 获取当前向量化 流程步骤 和 完成百分比
-    try:
-        # 检查任务状态并返回相应信息
-        if SP is None:
-            return http_response(request, statuscode=ERRORCODE.NO_TASK)  # 没有流程化任务
-        elif SP.is_task_over():
-            return http_response(request, statuscode=ERRORCODE.TASK_OVER) #  流程化任务结束
-        else:
-            # 获取状态和进度
-            current_step = SP.get_current_step()
-            progress = SP.get_progress()
+    # 从GET请求中获取blog_id参数
+    blog_id_str = request.GET.get('blog_id')  # 这将返回一个字符串或者None
 
-            return http_response(request, statuscode=ERRORCODE.SUCCESS, context={
-                "current_step": str(current_step),
-                "progress": str(progress)
-            })
+    # 检查blog_id_str是否存在并且是一个可以转换为整数的字符串
+    if blog_id_str is not None and blog_id_str.isdigit():
+        blog_id = int(blog_id_str)  # 转换为整数
 
-    except Exception as e:
-        Print(f"读取向量化状态时发生错误: {e}")
-        return http_response(request, statuscode=ERRORCODE.UNKNOWN, context={f"读取向量化状态时发生错误: {e}"})
+        # 获取当前向量化 流程步骤 和 完成百分比
+        try:
+            # 检查 blog_id 任务状态并返回相应信息
+            if not SP.has_progress(blog_id):
+                return http_response(request, statuscode=ERRORCODE.NO_TASK)  # 没有流程化任务
+            elif LLUM.getIDVectorize(blog_id):
+                return http_response(request, statuscode=ERRORCODE.TASK_OVER) #  流程化任务结束
+            else:
+                # 获取 blog_id 状态和进度
+                current_step, progress = SP.get_progress(blog_id)
+
+                # 检查 current_step 或 progress 是否为 None
+                if current_step is None or progress is None:
+                    return http_response(request, sstatuscode=ERRORCODE.UNKNOWN, context={f"current_step: {current_step}, progress: {progress}"})
+                
+                return http_response(request, statuscode=ERRORCODE.SUCCESS, context={
+                    "current_step": str(current_step),
+                    "progress": str(progress)
+                })
+
+        except Exception as e:
+            return http_response(request, statuscode=ERRORCODE.UNKNOWN, context={f"读取向量化状态时发生错误: {e}"})
+    else:
+        # 如果 blog_id 错误，返回参数错误响应
+        return http_response(request, statuscode=ERRORCODE.PARAM_ERROR, message='GET param \'blog_id\' is error!')
 
 @login_required
 def friend_link_list_view(request):
