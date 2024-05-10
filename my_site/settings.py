@@ -13,10 +13,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 import os
 from pathlib import Path
 from utils.libs.config.logger_settings import LOGGING, LOG_ROOT
-from utils.config import (
-    MYSQL_HOST, MYSQL_PORT, MYSQL_DATABASE, MYSQL_USER, MYSQL_PASSWORD,
-    REDIS_HOST, REDIS_PORT
-)
+from utils.config import *
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -106,11 +103,7 @@ CACHES = {
     },
 }
 
-# Celery配置
-CELERY_BROKER_URL = f'redis://{REDIS_HOST}:{REDIS_PORT}/1'
-CELERY_RESULT_BACKEND = f'redis://{REDIS_HOST}:{REDIS_PORT}/1'
-
-# celery config
+# 导入 Celery 配置
 from config.celery_conf import *
 
 # Password validation
