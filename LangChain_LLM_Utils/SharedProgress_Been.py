@@ -51,7 +51,7 @@ class SharedProgress:
         key = self.prefix + str(article_id)
         progress_data = {
             'step': step,
-            'progress': progress
+            'progress': int(progress)
         }
         # 使用 set 保证一个 key 只有一个记录
         self.redis_client.set(key, json.dumps(progress_data), ex=expire_seconds)

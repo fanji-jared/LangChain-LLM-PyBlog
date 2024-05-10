@@ -115,8 +115,8 @@ class BertModelTool:
             self.nowSentencesI = i
             
             # 设置状态和进度
-            progress = min(100, (i / len(sentences_list)) * 100)  # 转换为百分比并限制在0-100之间
-            SP.set_progress(id, VectorizationProcess.TEXT_VEC.value, progress)
+            progress = int(i / len(sentences_list) * 100)  # 转换为百分比整数并限制在0-100之间
+            SP.set_progress(id, VectorizationProcess.SENT_VEC.value, progress)
 
         return sentence_embeddings
     
