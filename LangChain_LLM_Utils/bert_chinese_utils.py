@@ -8,7 +8,7 @@ import os
 
 # 获取 SharedProgress 单例实例
 from LangChain_LLM_Utils.SharedProgress_Been import SharedProgress, VectorizationProcess
-SP = SharedProgress.get_shared_progress()
+SP = SharedProgress()
 
 class BertModelTool:
     def __init__(self, save_directory='./bert-base-chinese-local'):
@@ -83,7 +83,7 @@ class BertModelTool:
         # 返回 文章整体嵌入 数组
         return sentence_embeddings.cpu().numpy()
 
-    def get_sentences_embeddings(self, sentences_list):
+    def get_sentences_embeddings(self, id, sentences_list):
         """  
         获取句子列表中每个句子的嵌入表示
     
@@ -115,8 +115,8 @@ class BertModelTool:
             self.nowSentencesI = i
             
             # 设置状态和进度
-            SP.current_step = VectorizationProcess.TEXT_VEC.value
-            SP.progress =  i / len(sentences_list)
+            progress = min(100, (i / len(sentences_list)) * 100)  # 转换为百分比并限制在0-100之间
+            SP.set_progress(id, VectorizationProcess.TEXT_VEC.value, progress)
 
         return sentence_embeddings
     

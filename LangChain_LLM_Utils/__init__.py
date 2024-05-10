@@ -46,15 +46,15 @@ class Manger:
             5. 存储句子向量 - Sent Vec Store
 
         Args:
-            id (int): 文章 id
+            id (int): 文章 id - 用于 redis 记录进度
             title (str): 文章标题
             content (str): 文章正文
 
         Returns:
             None
         """
-        # 获取 SharedProgress 单例实例
-        SP = SharedProgress.get_shared_progress()
+        # 获取 SharedProgress
+        SP = SharedProgress()
 
         #################################### 1. 格式化文章 - Article Format       ####################################
         if self.MDT is None:
@@ -62,13 +62,12 @@ class Manger:
         sentences_list = self.MDT.get_sentences()
 
         # 设置状态和进度
-        SP.set_progress(VectorizationProcess.ARTICLE_FORMAT.value)
         if len(sentences_list) > 0 :
-            SP.set_progress(1.00)
+            SP.set_progress(id, VectorizationProcess.ARTICLE_FORMAT.value, 100)
             Print(111111111111111111111111111111111111111111111111111111111111111111111111111111)
         else:
-            SP.set_progress(0.00)
-            SP.reset()
+            SP.delete_progress(id)
+            return
 
 
         #################################### 2. 向量化全文 - Text Vec             ####################################
@@ -77,31 +76,26 @@ class Manger:
         article_embedding_list = self.BML.get_article_embedding(sentences_list)
 
         # 设置状态和进度
-        SP.set_progress(VectorizationProcess.TEXT_VEC.value)
         if article_embedding_list.size > 0 :
-            SP.set_progress(1.00)
+            SP.set_progress(id, VectorizationProcess.TEXT_VEC.value, 100)
             Print(222222222222222222222222222222222222222222222222222222222222222222222222222222)
         else:
-            SP.set_progress(0.00)
-            SP.reset()
+            SP.delete_progress(id)
+            return
 
 
         #################################### 3. 向量化句子 - Sent Vec             ####################################
         if self.BML is None:
             self.BML = bert_chinese_utils.BertModelTool()
-        sentences_embeddings_list = self.BML.get_sentences_embeddings(sentences_list)
+        sentences_embeddings_list = self.BML.get_sentences_embeddings(id, sentences_list)
 
         # 设置状态和进度
-        SP.set_progress(VectorizationProcess.SENT_VEC.value)
         if len(sentences_embeddings_list) > 0 :
-            SP.set_progress(1.00)
+            SP.set_progress(id, VectorizationProcess.SENT_VEC.value, 100)
             Print(333333333333333333333333333333333333333333333333333333333333333333333333333333)
         else:
-            SP.set_progress(0.00)
-            SP.reset()
-
-        SP.set_over()
-
+            SP.delete_progress(id)
+            return
 
         #################################### 4. 存储全文向量 - Full Vec Store      ####################################
         # if self.MT is None:

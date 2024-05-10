@@ -1,4 +1,10 @@
-from enum import Enum  
+from enum import Enum
+import json
+import os
+
+import redis
+
+from my_site import settings
   
 class VectorizationProcess(Enum):
     '''
@@ -11,55 +17,85 @@ class VectorizationProcess(Enum):
     SENT_VEC_STORE = "SentVecStore"
 
 class SharedProgress:
-    """
-    向量化流程状态传递类
-    """
-    _instance = None
+    def __init__(self, prefix='vectorization_progress:'):
+        self.redis_client = redis.Redis(
+            host=settings.REDIS_HOST,
+            port=settings.REDIS_PORT,
+            db=settings.REDIS_DB,
+            password=settings.REDIS_PASSWORD,
+            decode_responses=True
+        )
+        # REDIS_HOST = os.getenv('REDIS_HOST', '127.0.0.1')
+        # REDIS_PORT = os.getenv('REDIS_PORT', '6379')
+        # REDIS_DB = 0
+        # REDIS_PASSWORD = None  # 如果你的Redis服务器没有密码，则留空
 
-    # 提供一个全局访问点
-    @classmethod
-    def get_shared_progress(cls):
-        if cls._instance is None:
-            cls._instance = cls()  # 修复实例初始化
-        return cls._instance
-    
-    def __new__(cls, *args, **kwargs):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-        elif cls._instance.is_over:
-            cls._instance.reset()  # 如果实例存在且任务已完成，则重置它
-        return cls._instance
+        # self.redis_client = redis.Redis(
+        #     host=REDIS_HOST,
+        #     port=REDIS_PORT,
+        #     db=REDIS_DB,
+        #     password=REDIS_PASSWORD,
+        #     decode_responses=True
+        # )
+        self.prefix = prefix
 
-    def __init__(self):
-        if not hasattr(self, 'current_step'):  # 检查是否已经初始化
-            self.current_step = VectorizationProcess.ARTICLE_FORMAT.value
-            self.progress = 0.00
-            self.is_over = False
+    def set_progress(self, article_id, step, progress, expire_seconds=10 * 60):
+        """
+        设置进度并可选地设置过期时间
+        
+        :param article_id: 文章ID
+        :param process: 流程化状态枚举值
+        :param progress: 进度值
+        :param expire_seconds: 过期时间（秒），如果为None则不设置过期时间
+        """
+        key = self.prefix + article_id
+        progress_data = {
+            'step': step,
+            'progress': progress
+        }
+        # 使用 set 保证一个 key 只有一个记录
+        self.redis_client.set(key, json.dumps(progress_data), ex=expire_seconds)
 
-    def update(self, new_step = None, new_progress = 0.00):
-        self.progress = new_progress
-        if new_step is not None:
-            self.current_step = new_step
+    def get_progress(self, article_id):
+        """获取进度信息"""
+        progress_key = self.prefix + article_id
+        progress_json = self.redis_client.get(progress_key)
+        if progress_json:
+            progress_data = json.loads(progress_json)
+            return progress_data['step'], progress_data['progress']
+        else:
+            # 如果没有找到进度记录，返回None, None
+            return None, None
+  
+    def delete_progress(self, article_id):
+        """删除特定id的进度记录"""
+        progress_key = self.prefix + article_id
+        self.redis_client.delete(progress_key)
 
-    def set_progress(self, new_progress):
-        self.progress = new_progress
+    def has_progress(self, article_id):
+        """查询是否存在特定id的进度记录"""
+        progress_key = self.prefix + article_id
+        return self.redis_client.exists(progress_key)
 
-    def set_current_step(self, new_step):
-        self.current_step = new_step
+if __name__ == "__main__":
+    progress_manager = SharedProgress()
 
-    def set_over(self):
-        self.is_over = True
+    # 测试set_progress和get_progress
+    article_id = 'test_article_1'
+    progress_manager.set_progress(article_id, VectorizationProcess.ARTICLE_FORMAT.value, 50)
+    step, progress = progress_manager.get_progress(article_id)
+    print(f"Step: {step}, Progress: {progress}")  # 应该输出: Step: ArticleFormat, Progress: 50
 
-    def get_progress(self):
-        return self.progress
+    # 测试delete_progress和has_progress
+    progress_manager.delete_progress(article_id)
+    exists = progress_manager.has_progress(article_id)
+    print(f"Progress exists: {exists}")  # 应该输出: Progress exists: 0
 
-    def get_current_step(self):
-        return self.current_step
+    # 再设置一次进度并检查是否存在
+    progress_manager.set_progress(article_id, VectorizationProcess.TEXT_VEC.value, 75)
+    exists = progress_manager.has_progress(article_id)
+    print(f"Progress exists: {exists}")  # 应该输出: Progress exists: 1
 
-    def is_task_over(self):
-        return self.is_over
-    
-    def reset(self):
-        self.progress = 0.00
-        self.is_over = False
-        self.current_step = VectorizationProcess.ARTICLE_FORMAT.value
+    # 清理Redis（可选）
+    # 注意：在生产环境中不要这样做，除非你确定要删除所有数据
+    progress_manager.redis_client.flushall()
