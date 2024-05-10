@@ -228,7 +228,7 @@
                 <span aria-hidden="true">&times;</span>
               </button>
           </div>
-          <div class="modal-body">
+          <div class="modal-body" style="padding: 0;">
             <!-- 任务列表和进度条 -->
 
             <!-- 格式化文章 - Article Format
@@ -241,42 +241,32 @@
               <!-- 格式化文章 -->
               <div class="list-group-item">
                 <h4 class="mb-1">1. 格式化文章</h4>
-                <div class="progress">
-                  <div id="ArticleFormat" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0"
+                <div id="ArticleFormat" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0"
                     aria-valuemax="100">0%</div>
-                </div>
               </div>
               <!-- 向量化全文 -->
               <div class="list-group-item">
                 <h4 class="mb-1">2. 向量化全文</h4>
-                <div class="progress">
-                  <div id="TextVec" class="progress-bar btn-danger" role="progressbar" aria-valuenow="0"
+                <div id="TextVec" class="progress-bar btn-danger" role="progressbar" aria-valuenow="0"
                     aria-valuemin="0" aria-valuemax="100">0%</div>
-                </div>
               </div>
               <!-- 向量化句子 -->
               <div class="list-group-item">
                 <h4 class="mb-1">3. 向量化句子</h4>
-                <div class="progress">
-                  <div id="SentVec" class="progress-bar btn-warning" role="progressbar" aria-valuenow="0"
+                <div id="SentVec" class="progress-bar btn-warning" role="progressbar" aria-valuenow="0"
                     aria-valuemin="0" aria-valuemax="100">0%</div>
-                </div>
               </div>
               <!-- 存储全文向量 -->
               <div class="list-group-item">
                 <h4 class="mb-1">4. 存储全文向量</h4>
-                <div class="progress">
-                  <div id="FullVecStore" class="progress-bar bg-info" role="progressbar" aria-valuenow="0"
+                <div id="FullVecStore" class="progress-bar bg-info" role="progressbar" aria-valuenow="0"
                     aria-valuemin="0" aria-valuemax="100">0%</div>
-                </div>
               </div>
               <!-- 存储句子向量 -->
               <div class="list-group-item">
                 <h4 class="mb-1">5. 存储句子向量</h4>
-                <div class="progress">
-                  <div id="SentVecStore" class="progress-bar bg-success" role="progressbar" aria-valuenow="0"
+                <div id="SentVecStore" class="progress-bar bg-success" role="progressbar" aria-valuenow="0"
                     aria-valuemin="0" aria-valuemax="100">0%</div>
-                </div>
               </div>
             </div>
           </div>
@@ -323,9 +313,33 @@
     $("#vector_status_modal").modal('show');
   }
 
+  // 辅助函数，用于更新特定步骤的进度条
+  function setProgressBar(step, progress) {
+    // 找到对应的进度条元素
+    var progressBar = document.getElementById(step);
+    if (progressBar) {
+      // 设置进度条的宽度
+      progressBar.style.width = progress + '%';
+      // 更新aria-valuenow属性以反映当前进度值
+      progressBar.setAttribute('aria-valuenow', progress);
+      // 更新进度条内的文本
+      progressBar.textContent = progress + '%';
+    } else {
+      console.error('进度条元素未找到: ', step);
+    }
+  }
+
+  // 初始化所有进度条
+  function initProgress(){
+    for (var i = 0; i < VP.length; i++) {
+      setProgressBar(VP[i], 0);
+    }
+  }
+
   function showTaskModal(itemId) {
     // 设置模态框中元素的值为item.id
     $("#blogIdInput").val(itemId);
+    initProgress(); // 初始化进度条
     // 显示模态框
     $('#taskModal').modal('show');
   }
@@ -349,23 +363,20 @@
   // 全局 VectorizationProcess 对象
   VP = ["ArticleFormat", "TextVec", "SentVec", "FullVecStore", "SentVecStore"];
 
+  // 更新进度条
   function updateProgress(step, progress) {
-    // 避免不更新前面的step
-
-
-    progress = Math.ceil(progress * 100);
-    // 找到对应的进度条元素
-    var progressBar = document.getElementById(step);
-    if (progressBar) {
-      // 设置进度条的宽度
-      progressBar.style.width = progress + '%';
-      // 更新aria-valuenow属性以反映当前进度值
-      progressBar.setAttribute('aria-valuenow', progress);
-      // 更新进度条内的文本
-      progressBar.textContent = progress + '%';
-    } else {
-      console.error('进度条元素未找到: ', step);
+    // 验证步骤是否存在
+    var stepIndex = VP.indexOf(step);
+    if (stepIndex === -1) {
+      console.error('步骤不存在: ', step);
+      return;
     }
+    // 遍历并更新步骤之前的所有步骤进度为100%
+    for (var i = 0; i < stepIndex; i++) {
+      setProgressBar(VP[i], 100);
+    }
+    // 更新当前步骤的进度
+    setProgressBar(step, progress);
   }
 
   // 在模态框显示时执行
@@ -382,8 +393,8 @@
           console.log(statusCode);
 
           if (statusCode === ERRORCODE.SUCCESS) {
-            var current_step = data.context.current_step;
-            var progress = data.context.progress;
+            var current_step = data.current_step;
+            var progress = data.progress;
             // 播放动画
             playAnimation();
             // 更新进度条
