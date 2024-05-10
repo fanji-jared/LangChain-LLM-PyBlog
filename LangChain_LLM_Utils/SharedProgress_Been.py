@@ -48,7 +48,7 @@ class SharedProgress:
         :param progress: 进度值
         :param expire_seconds: 过期时间（秒），如果为None则不设置过期时间
         """
-        key = self.prefix + article_id
+        key = self.prefix + str(article_id)
         progress_data = {
             'step': step,
             'progress': progress
@@ -58,7 +58,7 @@ class SharedProgress:
 
     def get_progress(self, article_id):
         """获取进度信息"""
-        progress_key = self.prefix + article_id
+        progress_key = self.prefix + str(article_id)
         progress_json = self.redis_client.get(progress_key)
         if progress_json:
             progress_data = json.loads(progress_json)
@@ -69,12 +69,12 @@ class SharedProgress:
   
     def delete_progress(self, article_id):
         """删除特定id的进度记录"""
-        progress_key = self.prefix + article_id
+        progress_key = self.prefix + str(article_id)
         self.redis_client.delete(progress_key)
 
     def has_progress(self, article_id):
         """查询是否存在特定id的进度记录"""
-        progress_key = self.prefix + article_id
+        progress_key = self.prefix + str(article_id)
         return self.redis_client.exists(progress_key)
 
 if __name__ == "__main__":
